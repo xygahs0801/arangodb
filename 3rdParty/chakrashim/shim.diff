@@ -1,0 +1,63 @@
+Only in /Users/mop/tmp/node-chakracore/deps/chakrashim/: chakra_natives.h
+diff -r -u chakrashim/core/CMakeLists.txt /Users/mop/tmp/node-chakracore/deps/chakrashim/core/CMakeLists.txt
+--- chakrashim/core/CMakeLists.txt	2016-11-27 09:40:17.000000000 +0100
++++ /Users/mop/tmp/node-chakracore/deps/chakrashim/core/CMakeLists.txt	2016-11-26 22:04:14.000000000 +0100
+@@ -148,14 +148,14 @@
+       endif()
+     endif()
+ 
+-    #if(NOT CC_XCODE_PROJECT)
+-    #    set(CLR_CMAKE_PLATFORM_DARWIN 1)
+-    #    add_compile_options(-mmacosx-version-min=10.7)
+-    #    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
+-    #        -mmacosx-version-min=10.7")
+-    #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+-    #        -mmacosx-version-min=10.7")
+-    #endif()
++    if(NOT CC_XCODE_PROJECT)
++        set(CLR_CMAKE_PLATFORM_DARWIN 1)
++        add_compile_options(-mmacosx-version-min=10.7)
++        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
++            -mmacosx-version-min=10.7")
++        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
++            -mmacosx-version-min=10.7")
++    endif()
+ else()
+     message(FATAL_ERROR "This OS is not supported")
+ endif()
+diff -r -u chakrashim/core/pal/src/include/pal/corunix.hpp /Users/mop/tmp/node-chakracore/deps/chakrashim/core/pal/src/include/pal/corunix.hpp
+--- chakrashim/core/pal/src/include/pal/corunix.hpp	2016-11-27 10:30:13.000000000 +0100
++++ /Users/mop/tmp/node-chakracore/deps/chakrashim/core/pal/src/include/pal/corunix.hpp	2016-11-26 17:34:05.000000000 +0100
+@@ -23,7 +23,7 @@
+ #define _CORUNIX_H
+ 
+ #include "palinternal.h"
+-#include <stdio.h>
++
+ namespace CorUnix
+ {
+     typedef DWORD PAL_ERROR;
+diff -r -u chakrashim/include/libplatform/libplatform.h /Users/mop/tmp/node-chakracore/deps/chakrashim/include/libplatform/libplatform.h
+--- chakrashim/include/libplatform/libplatform.h	2016-11-27 00:35:37.000000000 +0100
++++ /Users/mop/tmp/node-chakracore/deps/chakrashim/include/libplatform/libplatform.h	2016-11-26 17:34:06.000000000 +0100
+@@ -33,7 +33,7 @@
+ namespace v8 {
+ namespace platform {
+ 
+-v8::Platform* CreateDefaultPlatform(int thread_pool_size) {
++v8::Platform* CreateDefaultPlatform(int thread_pool_size = 0) {
+   return nullptr;
+ }
+ 
+diff -r -u chakrashim/include/v8.h /Users/mop/tmp/node-chakracore/deps/chakrashim/include/v8.h
+--- chakrashim/include/v8.h	2016-11-26 23:49:31.000000000 +0100
++++ /Users/mop/tmp/node-chakracore/deps/chakrashim/include/v8.h	2016-11-26 22:04:15.000000000 +0100
+@@ -2374,7 +2374,7 @@
+   ~TryCatch();
+ 
+   bool HasCaught() const;
+-  bool CanContinue() const { return true; };
++  bool CanContinue() const;
+   bool HasTerminated() const;
+   Handle<Value> ReThrow();
+   Local<Value> Exception() const;
