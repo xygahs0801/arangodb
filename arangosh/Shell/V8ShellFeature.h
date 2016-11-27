@@ -26,10 +26,10 @@
 #include "ApplicationFeatures/ApplicationFeature.h"
 
 #include <v8.h>
-#include <libplatform/libplatform.h>
 
 #include "Shell/ConsoleFeature.h"
 #include "Shell/ShellFeature.h"
+#include "ApplicationFeatures/V8PlatformFeature.h"
 
 namespace arangodb {
 class ConsoleFeature;

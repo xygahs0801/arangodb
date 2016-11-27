@@ -125,7 +125,7 @@ void V8ShellFeature::start() {
   v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(_isolate);
 
   // create the context
-  _context.Reset(_isolate, v8::Context::New(_isolate, nullptr, global));
+  _context.Reset(_isolate, v8::Context::New(_isolate, false, nullptr, global));
 
   auto context = v8::Local<v8::Context>::New(_isolate, _context);
 

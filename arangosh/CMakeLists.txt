@@ -36,6 +36,8 @@ target_link_libraries(${BIN_ARANGOBENCH}
   ${SYSTEM_LIBRARIES}
   boost_system
   boost_boost
+  chakrashim
+  icu
 )
 
 install(
@@ -45,7 +47,7 @@ install(
 install_config(arangobench)
 
 if (NOT USE_PRECOMPILED_V8)
-  add_dependencies(arangobench zlibstatic v8_build) # v8_build includes ICU build
+  add_dependencies(arangobench zlibstatic chakrashim) # chakrashim_build includes ICU build
 else ()
   add_dependencies(arangobench zlibstatic)
 endif ()
@@ -83,6 +85,8 @@ target_link_libraries(${BIN_ARANGODUMP}
   ${SYSTEM_LIBRARIES}
   boost_system
   boost_boost
+  chakrashim
+  icu
 )
 
 install(
@@ -92,7 +96,7 @@ install(
 install_config(arangodump)
 
 if (NOT USE_PRECOMPILED_V8)
-  add_dependencies(arangodump zlibstatic v8_build) # v8_build includes ICU build
+  add_dependencies(arangodump zlibstatic chakrashim) # chakrashim_build includes ICU build
 else ()
   add_dependencies(arangodump zlibstatic)
 endif ()
@@ -140,9 +144,9 @@ install(
 install_config(arangoimp)
 
 if (NOT USE_PRECOMPILED_V8)
-  add_dependencies(arangoimp zlibstatic v8_build) # v8_build includes ICU build
+  add_dependencies(arangoimp zlibstatic chakrashim) # chakrashim_build includes ICU build
 else ()
-  add_dependencies(arangoimp zlibstatic) # v8_build includes ICU build
+  add_dependencies(arangoimp zlibstatic) # chakrashim_build includes ICU build
 endif ()
 
 ################################################################################
@@ -187,9 +191,9 @@ install(
 install_config(arangorestore)
 
 if (NOT USE_PRECOMPILED_V8)
-  add_dependencies(arangorestore zlibstatic v8_build) # v8_build includes ICU build
+  add_dependencies(arangorestore zlibstatic chakrashim) # chakrashim_build includes ICU build
 else ()
-  add_dependencies(arangorestore zlibstatic) # v8_build includes ICU build
+  add_dependencies(arangorestore zlibstatic) # chakrashim_build includes ICU build
 endif ()
 
 ################################################################################
@@ -222,6 +226,15 @@ add_executable(${BIN_ARANGOSH}
 )
 
 target_link_libraries(${BIN_ARANGOSH}
+  "-framework CoreFoundation"
+    "-framework Security"
+     -lm
+     -ldl
+     -Wl,-force_load
+  ChakraCore
+  Chakra.Jsrt
+  Chakra.Pal
+  chakrashim
   ${LIB_ARANGO_V8}
   ${LIB_ARANGO}
   ${LINENOISE_LIBS}
@@ -230,6 +243,12 @@ target_link_libraries(${BIN_ARANGOSH}
   ${SYSTEM_LIBRARIES}
   boost_system
   boost_boost
+  /usr/local/opt/icu4c/lib/libicuuc.a
+  /usr/local/opt/icu4c/lib/libicutu.a
+  /usr/local/opt/icu4c/lib/libicudata.a
+  /usr/local/opt/icu4c/lib/libicui18n.a
+  /usr/local/opt/icu4c/lib/libicuio.a
+  ${LIBUV_LIBRARY}
 )
 
 install(
@@ -239,7 +258,7 @@ install(
 install_config(arangosh)
 
 if (NOT USE_PRECOMPILED_V8)
-  add_dependencies(arangosh zlibstatic v8_build)
+  add_dependencies(arangosh zlibstatic chakrashim)
 else ()
   add_dependencies(arangosh zlibstatic)
 endif ()
@@ -280,9 +299,9 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if (NOT USE_PRECOMPILED_V8)
-  add_dependencies(arangovpack zlibstatic v8_build) # v8_build includes ICU build
+  add_dependencies(arangovpack zlibstatic chakrashim) # chakrashim_build includes ICU build
 else ()
-  add_dependencies(arangovpack zlibstatic) # v8_build includes ICU build
+  add_dependencies(arangovpack zlibstatic) # chakrashim_build includes ICU build
 endif ()
 
 ################################################################################

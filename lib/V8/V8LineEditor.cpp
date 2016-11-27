@@ -58,9 +58,9 @@ static bool SignalHandler(DWORD eventType) {
         if (instance->isExecutingCommand()) {
           v8::Isolate* isolate = instance->isolate();
 
-          if (!v8::V8::IsExecutionTerminating(isolate)) {
+          //if (!v8::V8::IsExecutionTerminating(isolate)) {
             v8::V8::TerminateExecution(isolate);
-          }
+          //}
         }
 
         instance->signal();
@@ -82,9 +82,9 @@ static void SignalHandler(int signal) {
     if (instance->isExecutingCommand()) {
       v8::Isolate* isolate = instance->isolate();
 
-      if (!v8::V8::IsExecutionTerminating(isolate)) {
+      //if (!v8::V8::IsExecutionTerminating(isolate)) {
         v8::V8::TerminateExecution(isolate);
-      }
+      //}
     }
 
     instance->signal();

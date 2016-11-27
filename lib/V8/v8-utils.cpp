@@ -955,7 +955,7 @@ static void JS_Execute(v8::FunctionCallbackInfo<v8::Value> const& args) {
 
     // create new context
     context = v8::Context::New(isolate);
-    context->Enter();
+    //context->Enter();
 
     // copy sandbox into context
     v8::Handle<v8::Array> keys = sandbox->GetPropertyNames();
@@ -994,8 +994,8 @@ static void JS_Execute(v8::FunctionCallbackInfo<v8::Value> const& args) {
     // compilation failed, print errors that happened during compilation
     if (script.IsEmpty()) {
       if (useSandbox) {
-        context->DetachGlobal();
-        context->Exit();
+        //context->DetachGlobal();
+        //context->Exit();
       }
 
       if (tryCatch.CanContinue()) {
@@ -1013,8 +1013,8 @@ static void JS_Execute(v8::FunctionCallbackInfo<v8::Value> const& args) {
 
     if (result.IsEmpty()) {
       if (useSandbox) {
-        context->DetachGlobal();
-        context->Exit();
+        //context->DetachGlobal();
+        //context->Exit();
       }
 
       if (tryCatch.CanContinue()) {
@@ -1053,8 +1053,8 @@ static void JS_Execute(v8::FunctionCallbackInfo<v8::Value> const& args) {
       sandbox->Set(key, value);
     }
 
-    context->DetachGlobal();
-    context->Exit();
+    //context->DetachGlobal();
+    //context->Exit();
   }
 
   if (useSandbox) {

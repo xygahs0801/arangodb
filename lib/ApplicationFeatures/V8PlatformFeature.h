@@ -25,8 +25,8 @@
 
 #include "ApplicationFeatures/ApplicationFeature.h"
 
-#include <libplatform/libplatform.h>
 #include <v8.h>
+
 
 namespace arangodb {
 class V8PlatformFeature final
@@ -75,7 +75,6 @@ class V8PlatformFeature final
   v8::Isolate* createIsolate();
 
  private:
-  std::unique_ptr<v8::Platform> _platform;
   std::unique_ptr<v8::ArrayBuffer::Allocator> _allocator;
   std::string _v8CombinedOptions;
   std::vector<std::unique_ptr<IsolateData>> _isolateData;

@@ -380,6 +380,8 @@ target_link_libraries(${BIN_ARANGOD}
   ${SYSTEM_LIBRARIES}
   boost_boost
   boost_system
+  chakrashim
+  icu
 )
 
 install(
@@ -389,7 +391,7 @@ install(
 install_config(arangod)
 
 if (NOT USE_PRECOMPILED_V8)
-  add_dependencies(arangod zlibstatic v8_build)
+  add_dependencies(arangod zlibstatic chakrashim)
 else ()
   add_dependencies(arangod zlibstatic)
 endif ()

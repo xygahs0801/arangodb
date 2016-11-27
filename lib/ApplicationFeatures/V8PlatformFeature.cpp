@@ -85,7 +85,7 @@ void V8PlatformFeature::validateOptions(
 }
 
 void V8PlatformFeature::start() {
-  v8::V8::InitializeICU();
+  // XXX v8::V8::InitializeICU();
 
   // explicit option --javascript.v8-options used
   if (!_v8CombinedOptions.empty()) {
@@ -99,9 +99,8 @@ void V8PlatformFeature::start() {
   std::string const forceARMv6 = "--noenable-armv7";
   v8::V8::SetFlagsFromString(forceARMv6.c_str(), (int)forceARMv6.size());
 #endif
-
-  _platform.reset(v8::platform::CreateDefaultPlatform());
-  v8::V8::InitializePlatform(_platform.get());
+  //_platform.reset(v8::platform::CreateDefaultPlatform());
+  //v8::V8::InitializePlatform(_platform.get());
   v8::V8::Initialize();
 
   _allocator.reset(new ArrayBufferAllocator);
@@ -109,8 +108,8 @@ void V8PlatformFeature::start() {
 
 void V8PlatformFeature::unprepare() {
   v8::V8::Dispose();
-  v8::V8::ShutdownPlatform();
-  _platform.reset();
+  //v8::V8::ShutdownPlatform();
+  //_platform.reset();
   _allocator.reset();
 }
 
@@ -167,10 +166,10 @@ v8::Isolate* V8PlatformFeature::createIsolate() {
   createParams.array_buffer_allocator = _allocator.get();
 
   if (0 < _v8MaxHeap) {
-    createParams.constraints.set_max_old_space_size(static_cast<int>(_v8MaxHeap));
+    //createParams.constraints.set_max_old_space_size(static_cast<int>(_v8MaxHeap));
   }
 
-  auto isolate = v8::Isolate::New(createParams);
+  auto isolate = v8::Isolate::New();//createParams);
   isolate->AddGCPrologueCallback(gcPrologueCallback);
   isolate->AddGCEpilogueCallback(gcEpilogueCallback);
 
