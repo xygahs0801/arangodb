@@ -27,6 +27,14 @@ const expect = require('chai').expect;
 const internal = require('internal');
 const download = require('internal').download;
 describe('Shard distribution', function () {
+  before(function() {
+    internal.db._create('nonsatellite');
+    internal.db._create('nonsatellite2');
+  });
+  after(function() {
+    internal.db._drop('nonsatellite');
+    internal.db._drop('nonsatellite2');
+  });
   afterEach(function() {
     internal.db._drop('satellite');
   });
@@ -43,5 +51,47 @@ describe('Shard distribution', function () {
   it('should ignore numberOfShards', function() {
     internal.db._create('satellite', {'replicationFactor': 'satellite', 'numberOfShards': 12});
     expect(internal.db._collection('satellite').properties().numberOfShards).to.be.equal(1);
+  });
+
+  it('should optimize queries with a satellite as start collection', function() {
+    internal.db._create('satellite', {'replicationFactor': 'satellite'});
+    let explanation = internal.db._createStatement('FOR doc in satellite FOR doc2 in nonsatellite RETURN doc').explain().plan;
+    expect(explanation.nodes.filter(node => node.type == 'RemoteNode')).to.have.lengthOf(1);
+    expect(explanation.nodes.filter(node => node.type == 'GatherNode')).to.have.lengthOf(1);
+    expect(explanation.rules).to.include('remove-satellite-joins');
+  });
+
+  it('should optimize queries with a satellite as end collection', function() {
+    internal.db._create('satellite', {'replicationFactor': 'satellite'});
+    let explanation = internal.db._createStatement('FOR doc in satellite FOR doc2 in nonsatellite RETURN doc').explain().plan;
+    expect(explanation.nodes.filter(node => node.type == 'RemoteNode')).to.have.lengthOf(1);
+    expect(explanation.nodes.filter(node => node.type == 'GatherNode')).to.have.lengthOf(1);
+    expect(explanation.rules).to.include('remove-satellite-joins');
+  });
+
+  it('should not optimize queries without a satellite collection', function() {
+    internal.db._create('satellite', {'replicationFactor': 'satellite'});
+    let explanation = internal.db._createStatement('FOR doc in nonsatellite FOR doc2 in nonsatellite2 RETURN doc').explain().plan;
+    expect(explanation.nodes.filter(node => node.type == 'RemoteNode')).to.have.lengthOf(3);
+    expect(explanation.nodes.filter(node => node.type == 'GatherNode')).to.have.lengthOf(2);
+    expect(explanation.rules).not.to.include('remove-satellite-joins');
+  });
+
+  it('should optimize queries with a satellite collection and a filter', function() {
+    internal.db._create('satellite', {'replicationFactor': 'satellite'});
+    let explanation = internal.db._createStatement('FOR doc in nonsatellite FOR doc2 in nonsatellite2 FILTER doc2.hund==2 RETURN doc').explain().plan;
+    expect(explanation.nodes.filter(node => node.type == 'RemoteNode')).to.have.lengthOf(3);
+    expect(explanation.nodes.filter(node => node.type == 'GatherNode')).to.have.lengthOf(2);
+    expect(explanation.nodes.filter(node => node.type == 'CalculationNode')).to.have.lengthOf(1);
+    expect(explanation.nodes.filter(node => node.type == 'FilterNode')).to.have.lengthOf(1);
+    expect(explanation.rules).not.to.include('remove-satellite-joins');
+  });
+
+  it('should not optimize out a second non satellite join', function() {
+    internal.db._create('satellite', {'replicationFactor': 'satellite'});
+    let explanation = internal.db._createStatement('FOR doc in nonsatellite FOR doc2 in satellite FOR doc3 in nonsatellite2 RETURN doc').explain().plan;
+    expect(explanation.nodes.filter(node => node.type == 'RemoteNode')).to.have.lengthOf(3);
+    expect(explanation.nodes.filter(node => node.type == 'GatherNode')).to.have.lengthOf(2);
+    expect(explanation.rules).to.include('remove-satellite-joins');
   });
 });

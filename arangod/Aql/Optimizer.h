@@ -178,6 +178,9 @@ class Optimizer {
     // make operations on sharded collections use scatter / gather / remote
     scatterInClusterRule_pass10 = 1010,
 
+    // remove any superflous satellite collection joins
+    removeSatelliteJoinsRule_pass10 = 1015,
+
     // move FilterNodes & Calculation nodes in between
     // scatter(remote) <-> gather(remote) so they're
     // distributed to the cluster nodes.
