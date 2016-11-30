@@ -183,6 +183,9 @@ class ScatterNode : public ExecutionNode {
   /// @brief return the collection
   Collection const* collection() const { return _collection; }
 
+  /// @brief set collection
+  void setCollection(Collection const* collection) { _collection = collection; }
+
  private:
   /// @brief the underlying database
   TRI_vocbase_t* _vocbase;
@@ -356,6 +359,8 @@ class GatherNode : public ExecutionNode {
 
   /// @brief return the collection
   Collection const* collection() const { return _collection; }
+
+  void setCollection(Collection const* collection) { _collection = collection; }
 
  private:
   /// @brief pairs, consisting of variable and sort direction

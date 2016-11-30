@@ -22,6 +22,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ExecutionEngine.h"
+
 #include "Aql/BasicBlocks.h"
 #include "Aql/CalculationBlock.h"
 #include "Aql/ClusterBlocks.h"
@@ -473,6 +474,7 @@ struct CoordinatorInstanciator : public WalkerWorker<ExecutionNode> {
   /// @brief distributePlanToShard, send a single plan to one shard
   void distributePlanToShard(arangodb::CoordTransactionID& coordTransactionID,
                              EngineInfo const& info, Collection* collection,
+                             std::unordered_set<Collection*> const& allCollections,
                              QueryId& connectedId, std::string const& shardId,
                              VPackSlice const& planSlice) {
     // inject the current shard id into the collection
@@ -489,13 +491,15 @@ struct CoordinatorInstanciator : public WalkerWorker<ExecutionNode> {
     result.add("variables", tmp.slice());
 
     result.add("collections", VPackValue(VPackValueType::Array));
-    // add the collection
-    result.openObject();
-    result.add("name", VPackValue(collection->getName()));
-    result.add("type", VPackValue(TRI_TransactionTypeGetStr(collection->accessType)));
-    result.close();
+    for (auto const& containedCollection: allCollections) {
+      // add the collection
+      result.openObject();
+      result.add("name", VPackValue(containedCollection->getName()));
+      result.add("type", VPackValue(TRI_TransactionTypeGetStr(containedCollection->accessType)));
+      result.close();
+    }
     result.close(); // collections
-    
+
     result.add(VPackObjectIterator(planSlice));
     result.close(); // plan
 
@@ -570,11 +574,11 @@ struct CoordinatorInstanciator : public WalkerWorker<ExecutionNode> {
           std::string theID =
               arangodb::basics::StringUtils::itoa(info.idOfRemoteNode) + ":" +
               res.shardID;
+          
           if (info.part == arangodb::aql::PART_MAIN) {
-            queryIds.emplace(theID, queryId + "*");
-          } else {
-            queryIds.emplace(theID, queryId);
+            queryId += "*";
           }
+          queryIds.emplace(theID, queryId);
         } else {
           error += "DB SERVER ANSWERED WITH ERROR: ";
           error += res.answer->payload().toJson();
@@ -600,7 +604,7 @@ struct CoordinatorInstanciator : public WalkerWorker<ExecutionNode> {
 
   /// @brief distributePlansToShards, for a single Scatter/Gather block
   void distributePlansToShards(EngineInfo const& info, QueryId connectedId) {
-    // std::cout << "distributePlansToShards: " << info.id << std::endl;
+    //LOG(ERR) << "distributePlansToShards: " << info.id;
     Collection* collection = info.getCollection();
     // now send the plan to the remote servers
     arangodb::CoordTransactionID coordTransactionID = TRI_NewTickServer();
@@ -609,20 +613,59 @@ struct CoordinatorInstanciator : public WalkerWorker<ExecutionNode> {
 
     // iterate over all shards of the collection
     size_t nr = 0;
-    auto shardIds = collection->shardIds();
+
+    std::unordered_set<Collection*> collections;
+    Collection* shardingCollection = collection;
+    collections.emplace(collection);
+    for (auto const& currentNode: info.nodes) {
+      bool isSatellite = false;
+      if (currentNode->getType() == ExecutionNode::NodeType::ENUMERATE_COLLECTION) {
+        auto currentCollectionNode = static_cast<EnumerateCollectionNode const*>(currentNode);
+        Collection* currentCollection = const_cast<Collection*>(currentCollectionNode->collection());
+
+        collections.emplace(currentCollection);
+        isSatellite = currentCollection->isSatellite();
+
+        if (!isSatellite) {
+          shardingCollection = currentCollection;
+        } else {
+          auto shardIds = currentCollection->shardIds();
+          TRI_ASSERT(shardIds != nullptr);
+          TRI_ASSERT(shardIds->size() > 0);
+          currentCollection->setCurrentShard((*shardIds)[0]);
+        }
+      } else if (currentNode->getType() == ExecutionNode::NodeType::INDEX) {
+        auto currentIndexNode = static_cast<IndexNode const*>(currentNode);
+        Collection* currentCollection = const_cast<Collection*>(currentIndexNode->collection());
+
+        collections.emplace(currentCollection);
+        isSatellite = currentCollection->isSatellite();
+        if (!isSatellite) {
+          shardingCollection = currentCollection;
+        } else {
+          auto shardIds = currentCollection->shardIds();
+          TRI_ASSERT(shardIds != nullptr);
+          TRI_ASSERT(shardIds->size() > 0);
+          currentCollection->setCurrentShard((*shardIds)[0]);
+        }
+      }
+    }
+
+    auto shardIds = shardingCollection->shardIds();
     for (auto const& shardId : *shardIds) {
       // inject the current shard id into the collection
-      collection->setCurrentShard(shardId);
+      shardingCollection->setCurrentShard(shardId);
       VPackBuilder b;
       generatePlanForOneShard(b, nr++, info, connectedId, shardId, true);
 
-      distributePlanToShard(coordTransactionID, info, collection, connectedId,
-                            shardId, b.slice());
+      distributePlanToShard(coordTransactionID, info, shardingCollection,
+                            collections, connectedId, shardId,
+                            b.slice());
     }
 
     // fix collection
     collection->resetCurrentShard();
-    aggregateQueryIds(info, cc, coordTransactionID, collection);
+    aggregateQueryIds(info, cc, coordTransactionID, shardingCollection);
   }
 
   /// @brief buildEngineCoordinator, for a single piece
@@ -696,6 +739,7 @@ struct CoordinatorInstanciator : public WalkerWorker<ExecutionNode> {
             std::string theId =
                 arangodb::basics::StringUtils::itoa(remoteNode->id()) + ":" +
                 shardId;
+
             auto it = queryIds.find(theId);
             if (it == queryIds.end()) {
               THROW_ARANGO_EXCEPTION_MESSAGE(TRI_ERROR_INTERNAL,
