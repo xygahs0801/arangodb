@@ -75,7 +75,6 @@ void RestAqlHandler::createQueryFromVelocyPack() {
     return;
   }
   VPackSlice querySlice = queryBuilder->slice();
-  LOG(ERR) << "THE QUERY " << querySlice.toJson();
 
   TRI_ASSERT(querySlice.isObject());
 
