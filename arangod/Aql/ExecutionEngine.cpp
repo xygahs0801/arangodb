@@ -477,6 +477,7 @@ struct CoordinatorInstanciator : public WalkerWorker<ExecutionNode> {
                              std::unordered_set<Collection*> const& allCollections,
                              QueryId& connectedId, std::string const& shardId,
                              VPackSlice const& planSlice) {
+    LOG(ERR) << "DISTRIBUTED TO SHARD " << shardId << " " << planSlice.toJson();
     // inject the current shard id into the collection
     collection->setCurrentShard(shardId);
 
@@ -578,6 +579,7 @@ struct CoordinatorInstanciator : public WalkerWorker<ExecutionNode> {
           if (info.part == arangodb::aql::PART_MAIN) {
             queryId += "*";
           }
+          LOG(ERR) << "GOT QUERY RESULT " << theID << " " << queryId;
           queryIds.emplace(theID, queryId);
         } else {
           error += "DB SERVER ANSWERED WITH ERROR: ";
@@ -669,8 +671,9 @@ struct CoordinatorInstanciator : public WalkerWorker<ExecutionNode> {
   }
 
   /// @brief buildEngineCoordinator, for a single piece
-  ExecutionEngine* buildEngineCoordinator(EngineInfo& info) {
+  ExecutionEngine* buildEngineCoordinator(EngineInfo const& info) {
     Query* localQuery = query;
+    LOG(ERR) << "BUILD THE QUERY";
     bool needToClone = info.id > 0;  // use the original for the main part
     if (needToClone) {
       // need a new query instance on the coordinator
@@ -1001,6 +1004,7 @@ struct CoordinatorInstanciator : public WalkerWorker<ExecutionNode> {
 
   /// @brief buildEngines, build engines on DBservers and coordinator
   ExecutionEngine* buildEngines() {
+    LOG(ERR) << "BUILD ENGINES";
     ExecutionEngine* engine = nullptr;
     QueryId id = 0;
 
@@ -1069,6 +1073,7 @@ struct CoordinatorInstanciator : public WalkerWorker<ExecutionNode> {
       QueryPart part = PART_DEPENDENT;
       if (currentLocation == DBSERVER) {
         auto rn = static_cast<RemoteNode*>(en);
+        LOG(ERR) << "PUFF " << rn->collection()->name;
         Collection const* coll = rn->collection();
         if (collNamesSeenOnDBServer.find(coll->name) ==
             collNamesSeenOnDBServer.end()) {
@@ -1147,6 +1152,8 @@ ExecutionEngine* ExecutionEngine::instantiateFromPlan(
         for (auto& q : inst.get()->queryIds) {
           std::string theId = q.first;
           std::string queryId = q.second;
+
+          LOG(ERR) << "QUERY " << theId << ": " << queryId;
           // std::cout << "queryIds: " << theId << " : " << queryId <<
           // std::endl;
           auto pos = theId.find(':');
@@ -1199,6 +1206,8 @@ ExecutionEngine* ExecutionEngine::instantiateFromPlan(
           std::string const& shardId = p.first;
           std::string const& queryId = p.second.first;
           bool isTraverserEngine = p.second.second;
+
+          LOG(ERR) << "SHITTE LOCKI " << shardId << " " << queryId << " " << isTraverserEngine;
           // Lock shard on DBserver:
           arangodb::CoordTransactionID coordTransactionID = TRI_NewTickServer();
           auto cc = arangodb::ClusterComm::instance();
