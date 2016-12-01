@@ -178,9 +178,6 @@ class Optimizer {
     // make operations on sharded collections use scatter / gather / remote
     scatterInClusterRule_pass10 = 1010,
 
-    // remove any superflous satellite collection joins
-    removeSatelliteJoinsRule_pass10 = 1015,
-
     // move FilterNodes & Calculation nodes in between
     // scatter(remote) <-> gather(remote) so they're
     // distributed to the cluster nodes.
@@ -193,6 +190,11 @@ class Optimizer {
     // try to get rid of a RemoteNode->ScatterNode combination which has
     // only a SingletonNode and possibly some CalculationNodes as dependencies
     removeUnnecessaryRemoteScatterRule_pass10 = 1040,
+
+    // remove any superflous satellite collection joins...
+    // put it after Scatter rule because we would do
+    // the work twice otherwise
+    removeSatelliteJoinsRule_pass10 = 1045,
 
     // recognize that a RemoveNode can be moved to the shards
     undistributeRemoveAfterEnumCollRule_pass10 = 1050
