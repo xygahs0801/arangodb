@@ -215,7 +215,7 @@ start() {
     mkdir cluster/data$PORT
     echo Starting $TYPE on port $PORT
     mkdir -p cluster/apps$PORT 
-    ${BUILD}/bin/arangod \
+    rr ${BUILD}/bin/arangod \
        -c none \
        --database.directory cluster/data$PORT \
        --cluster.agency-endpoint $TRANSPORT://127.0.0.1:$BASE \
@@ -225,7 +225,8 @@ start() {
        --cluster.my-role $ROLE \
        --log.file cluster/$PORT.log \
        --log.level info \
-       --server.statistics true \
+       --server.statistics false \
+       --foxx.queues false \
        --server.threads 5 \
        --javascript.startup-directory ./js \
        --javascript.module-directory ./enterprise/js \
@@ -286,6 +287,7 @@ startDebugger() {
       --cluster.my-role $ROLE \
       --log.file cluster/$PORT.log \
       --log.level info \
+      --log.level=requests=debug \
       --server.statistics false \
       --server.threads 5 \
       --javascript.startup-directory ./js \
