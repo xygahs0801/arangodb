@@ -144,17 +144,14 @@ static bool CheckCrcMarker(TRI_df_marker_t const* marker, char const* end) {
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
 /// @brief creates a new datafile
 ///
 /// returns the file descriptor or -1 if the file cannot be created
-////////////////////////////////////////////////////////////////////////////////
-
 static int CreateDatafile(std::string const& filename, TRI_voc_size_t maximalSize) {
   TRI_ERRORBUF;
 
   // open the file
-  int fd = TRI_CREATE(filename.c_str(), O_CREAT | O_EXCL | O_RDWR | TRI_O_CLOEXEC,
+  int fd = TRI_CREATE(filename.c_str(), O_CREAT | O_EXCL | O_RDWR | TRI_O_CLOEXEC | TRI_NOATIME,
                       S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 
   TRI_IF_FAILURE("CreateDatafile1") {
@@ -177,40 +174,54 @@ static int CreateDatafile(std::string const& filename, TRI_voc_size_t maximalSiz
     return -1;
   }
 
-  // fill file with zeros from FileNullBuffer
-  size_t writeSize = TRI_GetNullBufferSizeFiles();
-  size_t written = 0;
-  while (written < maximalSize) {
-    if (writeSize + written > maximalSize) {
-      writeSize = maximalSize - written;
-    }
+  // no fallocate present, or at least pretend it's not there...
+  int res = TRI_ERROR_NOT_IMPLEMENTED;
 
-    ssize_t writeResult =
-        TRI_WRITE(fd, TRI_GetNullBufferFiles(), static_cast<TRI_write_t>(writeSize));
+#ifdef __linux__
+#ifdef FALLOC_FL_ZERO_RANGE
+  // try fallocate
+  res = fallocate(fd, FALLOC_FL_ZERO_RANGE, 0, maximalSize);
+#endif
+#endif
 
-    TRI_IF_FAILURE("CreateDatafile2") {
-      // intentionally fail
-      writeResult = -1;
-      errno = ENOSPC;
-    }
+  if (res != TRI_ERROR_NO_ERROR) {
+    // either fallocate failed or it is not there...
 
-    if (writeResult < 0) {
-      if (errno == ENOSPC) {
-        TRI_set_errno(TRI_ERROR_ARANGO_FILESYSTEM_FULL);
-        LOG(ERR) << "cannot create datafile '" << filename << "': " << TRI_last_error();
-      } else {
-        TRI_SYSTEM_ERROR();
-        TRI_set_errno(TRI_ERROR_SYS_ERROR);
-        LOG(ERR) << "cannot create datafile '" << filename << "': " << TRI_GET_ERRORBUF;
+    // fill file with zeros from FileNullBuffer
+    size_t writeSize = TRI_GetNullBufferSizeFiles();
+    size_t written = 0;
+    while (written < maximalSize) {
+      if (writeSize + written > maximalSize) {
+        writeSize = maximalSize - written;
       }
 
-      TRI_CLOSE(fd);
-      TRI_UnlinkFile(filename.c_str());
+      ssize_t writeResult =
+          TRI_WRITE(fd, TRI_GetNullBufferFiles(), static_cast<TRI_write_t>(writeSize));
 
-      return -1;
+      TRI_IF_FAILURE("CreateDatafile2") {
+        // intentionally fail
+        writeResult = -1;
+        errno = ENOSPC;
+      }
+
+      if (writeResult < 0) {
+        if (errno == ENOSPC) {
+          TRI_set_errno(TRI_ERROR_ARANGO_FILESYSTEM_FULL);
+          LOG(ERR) << "cannot create datafile '" << filename << "': " << TRI_last_error();
+        } else {
+          TRI_SYSTEM_ERROR();
+          TRI_set_errno(TRI_ERROR_SYS_ERROR);
+          LOG(ERR) << "cannot create datafile '" << filename << "': " << TRI_GET_ERRORBUF;
+        }
+
+        TRI_CLOSE(fd);
+        TRI_UnlinkFile(filename.c_str());
+
+        return -1;
+      }
+
+      written += static_cast<size_t>(writeResult);
     }
-
-    written += static_cast<size_t>(writeResult);
   }
 
   // go back to offset 0
@@ -557,6 +568,22 @@ int TRI_datafile_t::reserveElement(TRI_voc_size_t size, TRI_df_marker_t** positi
 
   return TRI_ERROR_NO_ERROR;
 }
+  
+void TRI_datafile_t::sequentialAccess() {
+  TRI_MMFileAdvise(_data, _maximalSize, TRI_MADVISE_SEQUENTIAL);
+}
+
+void TRI_datafile_t::randomAccess() {
+  TRI_MMFileAdvise(_data, _maximalSize, TRI_MADVISE_RANDOM);
+}
+
+void TRI_datafile_t::willNeed() {
+  TRI_MMFileAdvise(_data, _maximalSize, TRI_MADVISE_WILLNEED);
+}
+
+void TRI_datafile_t::dontNeed() {
+  TRI_MMFileAdvise(_data, _maximalSize, TRI_MADVISE_DONTNEED);
+}
 
 int TRI_datafile_t::lockInMemory() {
   TRI_ASSERT(!_lockedInMemory);
@@ -876,7 +903,7 @@ int TRI_datafile_t::seal() {
 
   if (isPhysical()) {
     // From now on we predict random access (until collection or compaction):
-    TRI_MMFileAdvise(_data, _maximalSize, TRI_MADVISE_RANDOM);
+    randomAccess();
   }
 
   return TRI_ERROR_NO_ERROR;
@@ -1013,7 +1040,7 @@ TRI_datafile_t::TRI_datafile_t(std::string const& filename, int fd, void* mmHand
     TRI_ASSERT(fd >= 0);
 
     // Advise OS that sequential access is going to happen:
-    TRI_MMFileAdvise(_data, _maximalSize, TRI_MADVISE_SEQUENTIAL);
+    sequentialAccess();
   }
 }
   
@@ -1791,8 +1818,8 @@ TRI_datafile_t* TRI_datafile_t::open(std::string const& filename, bool ignoreFai
   }
 
   // Advise on sequential use:
-  TRI_MMFileAdvise(datafile->_data, datafile->_maximalSize, TRI_MADVISE_SEQUENTIAL);
-  TRI_MMFileAdvise(datafile->_data, datafile->_maximalSize, TRI_MADVISE_WILLNEED);
+  datafile->sequentialAccess();
+  datafile->willNeed();
 
   return datafile.release();
 }
@@ -1808,10 +1835,7 @@ TRI_datafile_t* TRI_datafile_t::openHelper(std::string const& filename, bool ign
   TRI_ASSERT(!filename.empty());
   TRI_voc_fid_t fid = GetNumericFilenamePart(filename.c_str());
 
-  // ..........................................................................
   // attempt to open a datafile file
-  // ..........................................................................
-
   int fd = TRI_OPEN(filename.c_str(), O_RDWR | TRI_O_CLOEXEC);
 
   if (fd < 0) {

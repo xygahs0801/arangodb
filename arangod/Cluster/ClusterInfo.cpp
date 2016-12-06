@@ -401,7 +401,7 @@ void ClusterInfo::loadPlan() {
 
   if (result.successful()) {
     VPackSlice slice = result.slice()[0].get(
-        std::vector<std::string>({AgencyComm::prefix(), "Plan"}));
+        std::vector<std::string>({AgencyCommManager::path(), "Plan"}));
     auto planBuilder = std::make_shared<VPackBuilder>();
     planBuilder->add(slice);
 
@@ -589,14 +589,16 @@ void ClusterInfo::loadCurrent() {
 
   // Now contact the agency:
   AgencyCommResult result = _agency.getValues(prefixCurrent);
+
   if (result.successful()) {
     velocypack::Slice slice = result.slice()[0].get(
-        std::vector<std::string>({AgencyComm::prefix(), "Current"}));
+        std::vector<std::string>({AgencyCommManager::path(), "Current"}));
 
     auto currentBuilder = std::make_shared<VPackBuilder>();
     currentBuilder->add(slice);
 
     VPackSlice currentSlice = currentBuilder->slice();
+
     if (currentSlice.isObject()) {
       decltype(_currentDatabases) newDatabases;
       decltype(_currentCollections) newCollections;
@@ -891,7 +893,7 @@ int ClusterInfo::createDatabaseCoordinator(std::string const& name,
   AgencyOperation incrementVersion("Plan/Version",
                                    AgencySimpleOperationType::INCREMENT_OP);
   AgencyPrecondition precondition("Plan/Databases/" + name,
-                                  AgencyPrecondition::EMPTY, true);
+                                  AgencyPrecondition::Type::EMPTY, true);
   AgencyWriteTransaction trx({newVal, incrementVersion}, precondition);
 
   res = ac.sendTransactionWithFailover(trx, realTimeout);
@@ -987,7 +989,7 @@ int ClusterInfo::dropDatabaseCoordinator(std::string const& name,
   AgencyOperation incrementVersion("Plan/Version",
                                    AgencySimpleOperationType::INCREMENT_OP);
   AgencyPrecondition databaseExists("Plan/Databases/" + name,
-                                    AgencyPrecondition::EMPTY, false);
+                                    AgencyPrecondition::Type::EMPTY, false);
   AgencyWriteTransaction trans(
       {delPlanDatabases, delPlanCollections, incrementVersion}, databaseExists);
 
@@ -1137,7 +1139,7 @@ int ClusterInfo::createCollectionCoordinator(std::string const& databaseName,
 
   AgencyPrecondition precondition = AgencyPrecondition(
       "Plan/Collections/" + databaseName + "/" + collectionID,
-      AgencyPrecondition::EMPTY, true);
+      AgencyPrecondition::Type::EMPTY, true);
 
   AgencyWriteTransaction transaction;
 
@@ -1148,7 +1150,8 @@ int ClusterInfo::createCollectionCoordinator(std::string const& databaseName,
   AgencyCommResult res = ac.sendTransactionWithFailover(transaction);
 
   if (!res.successful()) {
-    events::CreateCollection(name, TRI_ERROR_CLUSTER_COULD_NOT_CREATE_COLLECTION_IN_PLAN);
+    events::CreateCollection(
+        name, TRI_ERROR_CLUSTER_COULD_NOT_CREATE_COLLECTION_IN_PLAN);
     return setErrormsg(TRI_ERROR_CLUSTER_COULD_NOT_CREATE_COLLECTION_IN_PLAN,
                        errorMsg);
   }
@@ -1174,14 +1177,15 @@ int ClusterInfo::createCollectionCoordinator(std::string const& databaseName,
       }
 
       if (TRI_microtime() > endTime) {
-        LOG_TOPIC(ERR, Logger::CLUSTER) << "Timeout in _create collection"
-          << ": database: " << databaseName << ", collId:" << collectionID
-          << "\njson: " << json.toString()
-          << "\ntransaction sent to agency: " << transaction.toJson();
+        LOG_TOPIC(ERR, Logger::CLUSTER)
+            << "Timeout in _create collection"
+            << ": database: " << databaseName << ", collId:" << collectionID
+            << "\njson: " << json.toString()
+            << "\ntransaction sent to agency: " << transaction.toJson();
         AgencyCommResult ag = ac.getValues("");
         if (ag.successful()) {
           LOG_TOPIC(ERR, Logger::CLUSTER) << "Agency dump:\n"
-            << ag.slice().toJson();
+                                          << ag.slice().toJson();
         } else {
           LOG_TOPIC(ERR, Logger::CLUSTER) << "Could not get agency dump!";
         }
@@ -1240,9 +1244,9 @@ int ClusterInfo::dropCollectionCoordinator(std::string const& databaseName,
                      "/shards");
 
   if (res.successful()) {
-    velocypack::Slice shards = res.slice()[0].get(
-        std::vector<std::string>({AgencyComm::prefix(), "Plan", "Collections",
-                                  databaseName, collectionID, "shards"}));
+    velocypack::Slice shards = res.slice()[0].get(std::vector<std::string>(
+        {AgencyCommManager::path(), "Plan", "Collections", databaseName,
+         collectionID, "shards"}));
     if (shards.isObject()) {
       numberOfShards = shards.length();
     } else {
@@ -1259,7 +1263,7 @@ int ClusterInfo::dropCollectionCoordinator(std::string const& databaseName,
   AgencyOperation incrementVersion("Plan/Version",
                                    AgencySimpleOperationType::INCREMENT_OP);
   AgencyPrecondition precondition = AgencyPrecondition(
-      "Plan/Databases/" + databaseName, AgencyPrecondition::EMPTY, false);
+      "Plan/Databases/" + databaseName, AgencyPrecondition::Type::EMPTY, false);
   AgencyWriteTransaction trans({delPlanCollection, incrementVersion},
                                precondition);
   res = ac.sendTransactionWithFailover(trans);
@@ -1289,13 +1293,14 @@ int ClusterInfo::dropCollectionCoordinator(std::string const& databaseName,
       }
 
       if (TRI_microtime() > endTime) {
-        LOG_TOPIC(ERR, Logger::CLUSTER) << "Timeout in _drop collection"
-          << ": database: " << databaseName << ", collId:" << collectionID
-          << "\ntransaction sent to agency: " << trans.toJson();
+        LOG_TOPIC(ERR, Logger::CLUSTER)
+            << "Timeout in _drop collection"
+            << ": database: " << databaseName << ", collId:" << collectionID
+            << "\ntransaction sent to agency: " << trans.toJson();
         AgencyCommResult ag = ac.getValues("");
         if (ag.successful()) {
           LOG_TOPIC(ERR, Logger::CLUSTER) << "Agency dump:\n"
-            << ag.slice().toJson();
+                                          << ag.slice().toJson();
         } else {
           LOG_TOPIC(ERR, Logger::CLUSTER) << "Could not get agency dump!";
         }
@@ -1319,7 +1324,7 @@ int ClusterInfo::setCollectionPropertiesCoordinator(
   AgencyCommResult res;
 
   AgencyPrecondition databaseExists("Plan/Databases/" + databaseName,
-                                    AgencyPrecondition::EMPTY, false);
+                                    AgencyPrecondition::Type::EMPTY, false);
   AgencyOperation incrementVersion("Plan/Version",
                                    AgencySimpleOperationType::INCREMENT_OP);
 
@@ -1330,8 +1335,8 @@ int ClusterInfo::setCollectionPropertiesCoordinator(
   }
 
   velocypack::Slice collection = res.slice()[0].get(
-      std::vector<std::string>({AgencyComm::prefix(), "Plan", "Collections",
-                                databaseName, collectionID}));
+      std::vector<std::string>({AgencyCommManager::path(), "Plan",
+                                "Collections", databaseName, collectionID}));
 
   if (!collection.isObject()) {
     return TRI_ERROR_ARANGO_COLLECTION_NOT_FOUND;
@@ -1388,7 +1393,7 @@ int ClusterInfo::setCollectionStatusCoordinator(
   AgencyCommResult res;
 
   AgencyPrecondition databaseExists("Plan/Databases/" + databaseName,
-                                    AgencyPrecondition::EMPTY, false);
+                                    AgencyPrecondition::Type::EMPTY, false);
 
   res = ac.getValues("Plan/Collections/" + databaseName + "/" + collectionID);
 
@@ -1397,8 +1402,8 @@ int ClusterInfo::setCollectionStatusCoordinator(
   }
 
   VPackSlice col = res.slice()[0].get(
-      std::vector<std::string>({AgencyComm::prefix(), "Plan", "Collections",
-                                databaseName, collectionID}));
+      std::vector<std::string>({AgencyCommManager::path(), "Plan",
+                                "Collections", databaseName, collectionID}));
 
   if (!col.isObject()) {
     return TRI_ERROR_ARANGO_COLLECTION_NOT_FOUND;
@@ -1489,8 +1494,8 @@ int ClusterInfo::ensureIndexCoordinator(
   }
 
   velocypack::Slice collection = previous.slice()[0].get(
-      std::vector<std::string>({AgencyComm::prefix(), "Plan", "Collections",
-                                databaseName, collectionID}));
+      std::vector<std::string>({AgencyCommManager::path(), "Plan",
+                                "Collections", databaseName, collectionID}));
 
   if (!collection.isObject()) {
     return setErrormsg(TRI_ERROR_ARANGO_COLLECTION_NOT_FOUND, errorMsg);
@@ -1713,7 +1718,7 @@ int ClusterInfo::ensureIndexCoordinator(
                            newBuilder->slice());
   AgencyOperation incrementVersion("Plan/Version",
                                    AgencySimpleOperationType::INCREMENT_OP);
-  AgencyPrecondition oldValue(key, AgencyPrecondition::VALUE, collection);
+  AgencyPrecondition oldValue(key, AgencyPrecondition::Type::VALUE, collection);
   AgencyWriteTransaction trx({newValue, incrementVersion}, oldValue);
 
   AgencyCommResult result = ac.sendTransactionWithFailover(trx, 0.0);
@@ -1780,15 +1785,17 @@ int ClusterInfo::dropIndexCoordinator(std::string const& databaseName,
   AgencyCommResult res = ac.getValues(key);
 
   if (!res.successful()) {
-    events::DropIndex(collectionID, idString, TRI_ERROR_CLUSTER_READING_PLAN_AGENCY);
+    events::DropIndex(collectionID, idString,
+                      TRI_ERROR_CLUSTER_READING_PLAN_AGENCY);
     return TRI_ERROR_CLUSTER_READING_PLAN_AGENCY;
   }
 
   velocypack::Slice previous = res.slice()[0].get(
-      std::vector<std::string>({AgencyComm::prefix(), "Plan", "Collections",
-                                databaseName, collectionID}));
+      std::vector<std::string>({AgencyCommManager::path(), "Plan",
+                                "Collections", databaseName, collectionID}));
   if (!previous.isObject()) {
-    events::DropIndex(collectionID, idString, TRI_ERROR_ARANGO_COLLECTION_NOT_FOUND);
+    events::DropIndex(collectionID, idString,
+                      TRI_ERROR_ARANGO_COLLECTION_NOT_FOUND);
     return TRI_ERROR_ARANGO_COLLECTION_NOT_FOUND;
   }
 
@@ -1932,12 +1939,13 @@ int ClusterInfo::dropIndexCoordinator(std::string const& databaseName,
                          newCollectionBuilder.slice());
   AgencyOperation incrementVersion("Plan/Version",
                                    AgencySimpleOperationType::INCREMENT_OP);
-  AgencyPrecondition prec(key, AgencyPrecondition::VALUE, previous);
+  AgencyPrecondition prec(key, AgencyPrecondition::Type::VALUE, previous);
   AgencyWriteTransaction trx({newVal, incrementVersion}, prec);
   AgencyCommResult result = ac.sendTransactionWithFailover(trx, 0.0);
 
   if (!result.successful()) {
-    events::DropIndex(collectionID, idString, TRI_ERROR_CLUSTER_COULD_NOT_CREATE_COLLECTION_IN_PLAN);
+    events::DropIndex(collectionID, idString,
+                      TRI_ERROR_CLUSTER_COULD_NOT_CREATE_COLLECTION_IN_PLAN);
     return setErrormsg(TRI_ERROR_CLUSTER_COULD_NOT_CREATE_COLLECTION_IN_PLAN,
                        errorMsg);
   }
@@ -2000,7 +2008,7 @@ void ClusterInfo::loadServers() {
   if (result.successful()) {
     velocypack::Slice serversRegistered =
         result.slice()[0].get(std::vector<std::string>(
-            {AgencyComm::prefix(), "Current", "ServersRegistered"}));
+            {AgencyCommManager::path(), "Current", "ServersRegistered"}));
 
     if (serversRegistered.isObject()) {
       decltype(_servers) newServers;
@@ -2129,7 +2137,7 @@ void ClusterInfo::loadCurrentCoordinators() {
   if (result.successful()) {
     velocypack::Slice currentCoordinators =
         result.slice()[0].get(std::vector<std::string>(
-            {AgencyComm::prefix(), "Current", "Coordinators"}));
+            {AgencyCommManager::path(), "Current", "Coordinators"}));
 
     if (currentCoordinators.isObject()) {
       decltype(_coordinators) newCoordinators;
@@ -2187,17 +2195,16 @@ void ClusterInfo::loadCurrentDBServers() {
     velocypack::Slice cleanedDBServers;
 
     if (result.slice().length() > 0) {
-      currentDBServers =
-        result.slice()[0].get(std::vector<std::string>(
-            {AgencyComm::prefix(), "Current", "DBServers"}));
+      currentDBServers = result.slice()[0].get(std::vector<std::string>(
+          {AgencyCommManager::path(), "Current", "DBServers"}));
     }
-    if (!target.slice().isNone()) {
+    if (target.slice().length() > 0) {
       failedDBServers =
         target.slice()[0].get(std::vector<std::string>(
-              {AgencyComm::prefix(), "Target", "FailedServers"}));
+              {AgencyCommManager::path(), "Target", "FailedServers"}));
       cleanedDBServers =
         target.slice()[0].get(std::vector<std::string>(
-              {AgencyComm::prefix(), "Target", "CleanedOutServers"}));
+              {AgencyCommManager::path(), "Target", "CleanedOutServers"}));
     }
     if (currentDBServers.isObject() && failedDBServers.isObject()) {
       decltype(_DBServers) newDBServers;
@@ -2205,7 +2212,8 @@ void ClusterInfo::loadCurrentDBServers() {
       for (auto const& dbserver : VPackObjectIterator(currentDBServers)) {
         bool found = false;
         if (failedDBServers.isObject()) {
-          for (auto const& failedServer : VPackObjectIterator(failedDBServers)) {
+          for (auto const& failedServer :
+               VPackObjectIterator(failedDBServers)) {
             if (dbserver.key == failedServer.key) {
               found = true;
               break;
@@ -2646,7 +2654,7 @@ void FollowerInfo::add(ServerID const& sid) {
     if (res.successful()) {
       velocypack::Slice currentEntry =
           res.slice()[0].get(std::vector<std::string>(
-              {AgencyComm::prefix(), "Current", "Collections",
+              {AgencyCommManager::path(), "Current", "Collections",
                _docColl->vocbase()->name(), std::to_string(_docColl->planId()),
                _docColl->name()}));
 
@@ -2662,8 +2670,8 @@ void FollowerInfo::add(ServerID const& sid) {
                           "/" + std::to_string(_docColl->planId()) + "/" +
                           _docColl->name();
         AgencyWriteTransaction trx;
-        trx.preconditions.push_back(
-            AgencyPrecondition(key, AgencyPrecondition::VALUE, currentEntry));
+        trx.preconditions.push_back(AgencyPrecondition(
+            key, AgencyPrecondition::Type::VALUE, currentEntry));
         trx.operations.push_back(AgencyOperation(
             key, AgencyValueOperationType::SET, newValue.slice()));
         trx.operations.push_back(AgencyOperation(
@@ -2724,7 +2732,7 @@ void FollowerInfo::remove(ServerID const& sid) {
     if (res.successful()) {
       velocypack::Slice currentEntry =
           res.slice()[0].get(std::vector<std::string>(
-              {AgencyComm::prefix(), "Current", "Collections",
+              {AgencyCommManager::path(), "Current", "Collections",
                _docColl->vocbase()->name(), std::to_string(_docColl->planId()),
                _docColl->name()}));
 
@@ -2740,8 +2748,8 @@ void FollowerInfo::remove(ServerID const& sid) {
                           "/" + std::to_string(_docColl->planId()) + "/" +
                           _docColl->name();
         AgencyWriteTransaction trx;
-        trx.preconditions.push_back(
-            AgencyPrecondition(key, AgencyPrecondition::VALUE, currentEntry));
+        trx.preconditions.push_back(AgencyPrecondition(
+            key, AgencyPrecondition::Type::VALUE, currentEntry));
         trx.operations.push_back(AgencyOperation(
             key, AgencyValueOperationType::SET, newValue.slice()));
         trx.operations.push_back(AgencyOperation(

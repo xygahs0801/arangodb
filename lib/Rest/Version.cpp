@@ -95,11 +95,18 @@ void Version::initialize() {
   Values["boost-version"] = getBoostVersion();
   Values["build-date"] = getBuildDate();
   Values["compiler"] = getCompiler();
+#ifdef _DEBUG
+  Values["debug"] = "true";
+#else
+  Values["debug"] = "false";
+#endif
   Values["endianness"] = getEndianness();
   Values["fd-setsize"] = arangodb::basics::StringUtils::itoa(FD_SETSIZE);
+  Values["full-version-string"] = getVerboseVersionString();
   Values["icu-version"] = getICUVersion();
   Values["libev-version"] = getLibevVersion();
   Values["openssl-version"] = getOpenSSLVersion();
+  Values["platform"] = TRI_PLATFORM;
   Values["server-version"] = getServerVersion();
   Values["sizeof int"] = arangodb::basics::StringUtils::itoa(sizeof(int));
   Values["sizeof void*"] = arangodb::basics::StringUtils::itoa(sizeof(void*));
@@ -146,6 +153,12 @@ void Version::initialize() {
   Values["maintainer-mode"] = "true";
 #else
   Values["maintainer-mode"] = "false";
+#endif
+
+#ifdef ARANGODB_ENABLE_FAILURE_TESTS
+  Values["failure-tests"] = "true";
+#else
+  Values["failure-tests"] = "false";
 #endif
 
 #ifdef ARANGODB_HAVE_TCMALLOC
