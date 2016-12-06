@@ -371,6 +371,8 @@ class GatherNode : public ExecutionNode {
     _auxiliaryCollections.emplace(auxiliaryCollection);
   }
 
+  bool hasAuxiliaryCollections() const { return !_auxiliaryCollections.empty(); }
+
  private:
   /// @brief pairs, consisting of variable and sort direction
   /// (true = ascending | false = descending)
