@@ -233,7 +233,7 @@ void Scheduler::startIoService() {
 }
 
 void Scheduler::startRebalancer() {
-  std::chrono::milliseconds interval(500);
+  std::chrono::milliseconds interval(100);
   _threadManager.reset(new boost::asio::steady_timer(*_managerService));
 
   _threadHandler = [this, interval](const boost::system::error_code& error) {
@@ -348,10 +348,19 @@ void Scheduler::deleteOldThreads() {
 }
 
 void Scheduler::rebalanceThreads() {
-  LOG_TOPIC(DEBUG, Logger::THREADS) << "rebalancing threads: " << infoStatus();
+  static uint64_t count = 0;
 
-  if (_nrRunning < _nrWorking + _nrQueued + _nrMinimum) {
+  ++count;
+
+  if ((count % 5) == 0) {
+    LOG_TOPIC(DEBUG, Logger::THREADS) << "rebalancing threads: " << infoStatus();
+  } else {
+    LOG_TOPIC(TRACE, Logger::THREADS) << "rebalancing threads: " << infoStatus();
+  }
+
+  while (_nrRunning < _nrWorking + _nrQueued + _nrMinimum) {
     startNewThread();
+    usleep(5000);
   }
 }
 
