@@ -239,7 +239,7 @@ bool GeneralCommTask::handleRequest(std::shared_ptr<RestHandler> handler) {
     isDirect = true;
   } else if (handler->queue() == JobQueue::AQL_QUEUE) {
     isDirect = true;
-  } else if (_loop._scheduler->haveQueueCapicity()) {
+  } else if (_loop._scheduler->haveQueueCapacity()) {
     isDirect = true;
   }
 

@@ -87,7 +87,7 @@ class Scheduler {
  public:
   bool shouldStopThread();
   bool shouldQueueMore();
-  bool haveQueueCapicity();
+  bool haveQueueCapacity();
 
   bool queue(std::unique_ptr<Job> job);
 
