@@ -230,17 +230,18 @@ void GeneralCommTask::transferStatisticsTo(uint64_t id, RestHandler* handler) {
 
 bool GeneralCommTask::handleRequest(std::shared_ptr<RestHandler> handler) {
   bool isDirect = false;
+  bool isPrio = false;
 
   if (handler->isDirect()) {
     isDirect = true;
+  } else if (_loop._scheduler->hasQueueCapacity()) {
+    isDirect = true;
   } else if (ServerState::instance()->isDBServer()) {
-    isDirect = true;
+    isPrio = true;
   } else if (handler->needsOwnThread()) {
-    isDirect = true;
+    isPrio = true;
   } else if (handler->queue() == JobQueue::AQL_QUEUE) {
-    isDirect = true;
-  } else if (_loop._scheduler->haveQueueCapacity()) {
-    isDirect = true;
+    isPrio = true;
   }
 
   if (isDirect) {
@@ -248,11 +249,18 @@ bool GeneralCommTask::handleRequest(std::shared_ptr<RestHandler> handler) {
     return true;
   }
 
+  auto self = shared_from_this();
+
+  if (isPrio) {
+    SchedulerFeature::SCHEDULER->post(
+        [self, this, handler]() { handleRequestDirectly(std::move(handler)); });
+    return true;
+  }
+
   // ok, we need to queue the request
   LOG_TOPIC(TRACE, Logger::THREADS) << "queuing handler";
 
   uint64_t messageId = handler->messageId();
-  auto self = shared_from_this();
 
   std::unique_ptr<Job> job(
       new Job(_server, std::move(handler),

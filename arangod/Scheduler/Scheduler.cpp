@@ -289,7 +289,7 @@ bool Scheduler::shouldQueueMore() {
   return false;
 }
 
-bool Scheduler::haveQueueCapacity() {
+bool Scheduler::hasQueueCapacity() {
   if (_nrWorking + _nrQueued + _nrMinimum >= _nrMaximum) {
     return false;
   }
