@@ -3143,7 +3143,7 @@ int LogicalCollection::beginReadTimed(bool useDeadlockDetector,
   // std::cout << "BeginReadTimed: " << _name << std::endl;
   int iterations = 0;
   bool wasBlocked = false;
-  uint64_t waitTime = 1;
+  uint64_t waitTime = 0;  // indicate that times uninitialized
   double startTime = 0.0;
 
   while (true) {
@@ -3249,7 +3249,7 @@ int LogicalCollection::beginWriteTimed(bool useDeadlockDetector,
   // std::cout << "BeginWriteTimed: " << document->_info._name << std::endl;
   int iterations = 0;
   bool wasBlocked = false;
-  uint64_t waitTime = 1;
+  uint64_t waitTime = 0;  // indicate that times uninitialized
   double startTime = 0.0;
 
   while (true) {
