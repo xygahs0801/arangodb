@@ -31,8 +31,8 @@ set(SNAPPY_INCLUDE ${SNAPPY_HOME} CACHE PATH "include path")
 set(SNAPPY_LIB_DEBUG snappystatic CACHE FILEPATH "debug library")
 set(SNAPPY_LIB_RELEASE snappystatic CACHE FILEPATH "release library")
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/v5.1.4)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/v5.4.0)
 
 # result
 
-list(APPEND LINK_DIRECTORIES "${CMAKE_CURRENT_BINARY_DIR}/rocksdb/v5.1.4")
+list(APPEND LINK_DIRECTORIES "${CMAKE_CURRENT_BINARY_DIR}/rocksdb/v5.4.0")

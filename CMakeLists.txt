@@ -401,7 +401,7 @@ endif ()
 include_directories(${PROJECT_SOURCE_DIR}/3rdParty/linenoise-ng/include)
 include_directories(${PROJECT_SOURCE_DIR}/3rdParty/linenoise-ng/src)
 include_directories(${PROJECT_SOURCE_DIR}/3rdParty/velocypack/include)
-include_directories(${PROJECT_SOURCE_DIR}/3rdParty/rocksdb/v5.1.4/include)
+include_directories(${PROJECT_SOURCE_DIR}/3rdParty/rocksdb/v5.4.0/include)
 
 include_directories(${PROJECT_BINARY_DIR})
 include_directories(${PROJECT_BINARY_DIR}/lib)
@@ -585,10 +585,10 @@ add_subdirectory(3rdParty/rocksdb)
 add_definitions(-DARANGODB_ROCKSDB_VERSION=\"${ROCKSDB_VERSION}\")
 include_directories(${ROCKSDB_INCLUDE_DIR})
  
-set(ROCKSDB_LIBS rocksdblib;snappystatic)
+set(ROCKSDB_LIBS rocksdb;snappystatic)
 
 if (USE_JEMALLOC)
-  add_dependencies(rocksdblib jemalloc)
+    add_dependencies(rocksdb jemalloc)
 endif ()
 
 ################################################################################
