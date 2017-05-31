@@ -33,8 +33,12 @@ ShardingResult ShardOrganizer::createShardMap(ShardingSettings /*const&*/ settin
   std::string distributeShardsLike = settings.distributeShardsLike();
   ShardingResult result;
   if (!distributeShardsLike.empty()) {
-    result = createShardMap(settings.databaseName(), distributeShardsLike);
+    TRI_voc_cid_t otherCid = _ci->getCid(settings.databaseName(), distributeShardsLike);
+    std::string otherCidString = arangodb::basics::StringUtils::itoa(otherCid);
+
+    result = createShardMap(settings.databaseName(), otherCidString);
     result.resultSettings = settings;
+    result.resultSettings.distributeShardsLike(otherCidString);
     if (result.fail() && settings.createIndependentOnShardsLikeError()) {
       result = createShardMap(settings.numberOfShards(), settings.replicationFactor(),
         _ci->getCurrentDBServers(), settings.avoidServers(), settings.softReplicationFactor());
@@ -48,16 +52,9 @@ ShardingResult ShardOrganizer::createShardMap(ShardingSettings /*const&*/ settin
   return result;
 }
 
-ShardingResult ShardOrganizer::createShardMap(std::string const& databaseName, std::string const& distributeShardsLike) {
-  TRI_voc_cid_t otherCid = _ci->getCid(databaseName, distributeShardsLike);
-  
+ShardingResult ShardOrganizer::createShardMap(std::string const& databaseName, std::string const& otherCidString) {
   ShardMapPtr shards;
-  if (otherCid != 0) {
-    bool chainOfDistributeShardsLike = false;
-
-    std::string otherCidString 
-      = arangodb::basics::StringUtils::itoa(otherCid);
-    
+  if (otherCidString != "0") {
     if (_ci->hasDistributeShardsLike(databaseName, otherCidString)) {
       return ShardingResult(TRI_ERROR_CLUSTER_CHAIN_OF_DISTRIBUTESHARDSLIKE);
     }
