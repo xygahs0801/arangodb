@@ -52,6 +52,7 @@ function testAlgo(a, p) {
       .forEach(function(d) {
                  if (d[a] !== -1) {
                    var diff = Math.abs(d[a] - d.result);
+                    console.error("LE DIFF ", diff);
                    if (diff > EPS) {
                      console.error("Error on " + JSON.stringify(d));
                      assertTrue(false);// peng
