@@ -315,7 +315,7 @@ class ClusterInfo: public ClusterInfoInterface {
 
   TRI_voc_cid_t getCid(std::string const& databaseName, std::string const& collectionName) override;
   bool hasDistributeShardsLike(std::string const& databaseName, std::string const& cidString) override;
-  std::shared_ptr<ShardMap> getShardMap(std::string const& databaseName, std::string const& cidString) override;
+  virtual std::vector<ShardServers> getShardServerList(std::string const& databaseName, std::string const& cidString) override;
 
 
  public:

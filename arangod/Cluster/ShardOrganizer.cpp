@@ -58,13 +58,12 @@ ShardingResult ShardOrganizer::createShardMap(std::string const& databaseName, s
     if (_ci->hasDistributeShardsLike(databaseName, otherCidString)) {
       return ShardingResult(TRI_ERROR_CLUSTER_CHAIN_OF_DISTRIBUTESHARDSLIKE);
     }
-    auto referenceShards = _ci->getShardMap(databaseName, otherCidString);
-    TRI_ASSERT(referenceShards != nullptr);
+    auto referenceShards = _ci->getShardServerList(databaseName, otherCidString);
 
-    uint64_t const id = _ci->uniqid(referenceShards->size());
+    uint64_t const id = _ci->uniqid(referenceShards.size());
     ShardMap myShards;
     size_t i {0};
-    for (auto const& it: *(referenceShards.get())) {
+    for (auto const& it: referenceShards) {
       myShards.emplace("s" + StringUtils::itoa(id + (i++)), it.second);
     }
     shards = std::make_shared<ShardMap>(myShards);

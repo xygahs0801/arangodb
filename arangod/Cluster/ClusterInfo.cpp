@@ -2869,9 +2869,18 @@ bool ClusterInfo::hasDistributeShardsLike(std::string const& databaseName, std::
   return !collInfo->distributeShardsLike().empty();
 }
 
-std::shared_ptr<ShardMap> ClusterInfo::getShardMap(std::string const& databaseName, std::string const& cidString) {
+std::vector<ShardServers> ClusterInfo::getShardServerList(std::string const& databaseName, std::string const& cidString) {
   std::shared_ptr<LogicalCollection> collInfo =
     getCollection(databaseName, cidString);
 
-  return std::make_shared<ShardMap>(*(collInfo->shardIds()));
+  auto shardMap = collInfo->shardIds();
+  std::vector<ShardServers> shardServerList;
+  for (auto shardId: *(getShardList(cidString).get())) {
+    try {
+      shardServerList.push_back({shardId, shardMap->at(shardId)});  
+    } catch (std::out_of_range const&) {
+      LOG_TOPIC(WARN, Logger::CLUSTER) << "ShardId " << shardId << " is not in ShardMap of collection " << cidString;
+    }
+  }
+  return shardServerList;
 }

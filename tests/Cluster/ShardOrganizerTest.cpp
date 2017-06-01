@@ -95,12 +95,12 @@ SECTION("creating a shardMap for a system collection should not bail out even if
 }
 
 SECTION("creating a collection with distribute shards like should create the collection with the same servers") {
-  ShardMap reference;
-  reference.emplace("testi", std::vector<std::string>({"wursti", "warzi"}));
+  std::vector<ShardServers> reference;
+  reference.push_back({"test", std::vector<std::string>({"test2", "test3"})});
   fakeit::When(Method(mockClusterInfo, getCid)).AlwaysReturn(1);
   fakeit::When(Method(mockClusterInfo, getCurrentDBServers)).AlwaysReturn({"test", "test2", "test3"});
   fakeit::When(Method(mockClusterInfo, hasDistributeShardsLike)).AlwaysReturn(false);
-  fakeit::When(Method(mockClusterInfo, getShardMap)).AlwaysReturn(std::make_shared<ShardMap>(reference));
+  fakeit::When(Method(mockClusterInfo, getShardServerList)).AlwaysReturn(reference);
 
   auto& clusterInfo = mockClusterInfo.get();
 
@@ -117,12 +117,12 @@ SECTION("creating a collection with distribute shards like should create the col
 }
 
 SECTION("creating a collection with distribute shards like should create the collection with the same servers even when there are not enough servers") {
-  ShardMap reference;
-  reference.emplace("testi", std::vector<std::string>({"wursti", "warzi"}));
+  std::vector<ShardServers> reference;
+  reference.push_back({"test", std::vector<std::string>({"test2", "test3"})});
   fakeit::When(Method(mockClusterInfo, getCid)).AlwaysReturn(1);
   fakeit::When(Method(mockClusterInfo, getCurrentDBServers)).AlwaysReturn({});
   fakeit::When(Method(mockClusterInfo, hasDistributeShardsLike)).AlwaysReturn(false);
-  fakeit::When(Method(mockClusterInfo, getShardMap)).AlwaysReturn(std::make_shared<ShardMap>(reference));
+  fakeit::When(Method(mockClusterInfo, getShardServerList)).AlwaysReturn(reference);
 
   auto& clusterInfo = mockClusterInfo.get();
 
@@ -140,12 +140,12 @@ SECTION("creating a collection with distribute shards like should create the col
 }
 
 SECTION("creating a collection with distribute shards like should bail out if the master isn't found") {
-  ShardMap reference;
-  reference.emplace("testi", std::vector<std::string>({"wursti", "warzi"}));
+  std::vector<ShardServers> reference;
+  reference.push_back({"test", std::vector<std::string>({"test2", "test3"})});
   fakeit::When(Method(mockClusterInfo, getCid)).AlwaysReturn(0);
   fakeit::When(Method(mockClusterInfo, getCurrentDBServers)).AlwaysReturn({});
   fakeit::When(Method(mockClusterInfo, hasDistributeShardsLike)).AlwaysReturn(false);
-  fakeit::When(Method(mockClusterInfo, getShardMap)).AlwaysReturn(std::make_shared<ShardMap>(reference));
+  fakeit::When(Method(mockClusterInfo, getShardServerList)).AlwaysReturn(reference);
 
   auto& clusterInfo = mockClusterInfo.get();
 
@@ -163,12 +163,12 @@ SECTION("creating a collection with distribute shards like should bail out if th
 }
 
 SECTION("creating a collection with distribute shards like should create it like normal if the master isn't found and ignoreErrors is enabled") {
-  ShardMap reference;
-  reference.emplace("testi", std::vector<std::string>({"wursti", "warzi"}));
+  std::vector<ShardServers> reference;
+  reference.push_back({"test", std::vector<std::string>({"test2", "test3"})});
   fakeit::When(Method(mockClusterInfo, getCid)).AlwaysReturn(0);
   fakeit::When(Method(mockClusterInfo, getCurrentDBServers)).AlwaysReturn({"testi","hasti", "knacksi"});
   fakeit::When(Method(mockClusterInfo, hasDistributeShardsLike)).AlwaysReturn(false);
-  fakeit::When(Method(mockClusterInfo, getShardMap)).AlwaysReturn(std::make_shared<ShardMap>(reference));
+  fakeit::When(Method(mockClusterInfo, getShardServerList)).AlwaysReturn(reference);
 
   auto& clusterInfo = mockClusterInfo.get();
 
@@ -205,12 +205,12 @@ SECTION("avoiding servers should be a soft option and if the replication factor 
 }
 
 SECTION("trying to create a shardMap like another should bail out if the master also has 'distributeShardsLike'") {
-  ShardMap reference;
-  reference.emplace("testi", std::vector<std::string>({"wursti", "warzi"}));
+  std::vector<ShardServers> reference;
+  reference.push_back({"test", std::vector<std::string>({"test2", "test3"})});
   fakeit::When(Method(mockClusterInfo, getCid)).AlwaysReturn(1);
   fakeit::When(Method(mockClusterInfo, getCurrentDBServers)).AlwaysReturn({});
   fakeit::When(Method(mockClusterInfo, hasDistributeShardsLike)).AlwaysReturn(true);
-  fakeit::When(Method(mockClusterInfo, getShardMap)).AlwaysReturn(std::make_shared<ShardMap>(reference));
+  fakeit::When(Method(mockClusterInfo, getShardServerList)).AlwaysReturn(reference);
 
   auto& clusterInfo = mockClusterInfo.get();
 

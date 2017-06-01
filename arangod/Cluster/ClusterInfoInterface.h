@@ -42,6 +42,7 @@ typedef std::string ServerID;      // ID of a server
 typedef std::string DatabaseID;    // ID/name of a database
 typedef std::string CollectionID;  // ID of a collection
 typedef std::string ShardID;       // ID of a shard
+typedef std::pair<ShardID, std::vector<ServerID>> ShardServers;
 
 class CollectionInfoCurrent {
   friend class ClusterInfo;
@@ -464,7 +465,7 @@ class ClusterInfoInterface {
 
   virtual bool hasDistributeShardsLike(std::string const& databaseName, std::string const& cidString) = 0;
 
-  virtual std::shared_ptr<ShardMap> getShardMap(std::string const& databaseName, std::string const& cidString) = 0;
+  virtual std::vector<ShardServers> getShardServerList(std::string const& databaseName, std::string const& cidString) = 0;
 
   virtual ~ClusterInfoInterface() {}
 };
