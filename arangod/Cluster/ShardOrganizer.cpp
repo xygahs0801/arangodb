@@ -23,6 +23,7 @@
 
 #include "Cluster/ShardOrganizer.h"
 
+#include "Basics/Exceptions.h"
 #include "Basics/StringUtils.h"
 #include "Cluster/ClusterInfo.h"
 
@@ -33,7 +34,14 @@ ShardingResult ShardOrganizer::createShardMap(ShardingSettings /*const&*/ settin
   std::string distributeShardsLike = settings.distributeShardsLike();
   ShardingResult result;
   if (!distributeShardsLike.empty()) {
-    TRI_voc_cid_t otherCid = _ci->getCid(settings.databaseName(), distributeShardsLike);
+    TRI_voc_cid_t otherCid = 0;
+    try {
+      otherCid = _ci->getCid(settings.databaseName(), distributeShardsLike);
+    } catch (Exception const& e) {
+      if (e.code() != TRI_ERROR_ARANGO_COLLECTION_NOT_FOUND) {
+        throw;
+      }
+    }
     std::string otherCidString = arangodb::basics::StringUtils::itoa(otherCid);
 
     result = createShardMap(settings.databaseName(), otherCidString);

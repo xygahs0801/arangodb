@@ -141,7 +141,7 @@ SECTION("creating a collection with distribute shards like should create the col
 
 SECTION("creating a collection with distribute shards like should bail out if the master isn't found") {
   std::vector<ShardServers> reference;
-  reference.push_back({"test", std::vector<std::string>({"test2", "test3"})});
+  reference.push_back({"test2", std::vector<std::string>({"test2", "test3"})});
   fakeit::When(Method(mockClusterInfo, getCid)).AlwaysReturn(0);
   fakeit::When(Method(mockClusterInfo, getCurrentDBServers)).AlwaysReturn({});
   fakeit::When(Method(mockClusterInfo, hasDistributeShardsLike)).AlwaysReturn(false);
