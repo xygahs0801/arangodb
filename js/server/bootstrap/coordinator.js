@@ -50,8 +50,7 @@
       isSystem: true,
       period: 5 * 60, // secs
       command: function () {
-        const FoxxManager = require('@arangodb/foxx/manager');
-        FoxxManager.healAll();
+        require('@arangodb/foxx/manager')._healAll();
       }
     });
     // start the queue manager once
