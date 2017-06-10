@@ -38,7 +38,7 @@ using namespace arangodb::options;
 LanguageFeature::LanguageFeature(
     application_features::ApplicationServer* server)
   : 
-    ApplicationFeature(server, "Language"),
+    ApplicationFeature(server, "Language", "SYSTEM"),
     _binaryPath(server->getBinaryPath()),
     _icuDataPtr(nullptr) {
   setOptional(false);

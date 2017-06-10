@@ -51,7 +51,7 @@ char const* ShellColorsFeature::SHELL_COLOR_RESET = NoColor;
 
 ShellColorsFeature::ShellColorsFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "ShellColors") {
+    : ApplicationFeature(server, "ShellColors", "CLI") {
   setOptional(false);
   requiresElevatedPrivileges(false);
 }

@@ -36,7 +36,7 @@ using namespace arangodb::options;
 aql::QueryRegistry* QueryRegistryFeature::QUERY_REGISTRY = nullptr;
 
 QueryRegistryFeature::QueryRegistryFeature(ApplicationServer* server)
-    : ApplicationFeature(server, "QueryRegistry"),
+    : ApplicationFeature(server, "QueryRegistry", "AQL"),
       _queryTracking(true),
       _failOnWarning(false),
       _queryMemoryLimit(0),

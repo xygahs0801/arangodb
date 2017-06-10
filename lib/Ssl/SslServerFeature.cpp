@@ -37,7 +37,7 @@ SslServerFeature* SslServerFeature::SSL = nullptr;
 
 SslServerFeature::SslServerFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "SslServer"),
+    : ApplicationFeature(server, "SslServer", "COMM"),
       _cafile(),
       _keyfile(),
       _sessionCache(false),

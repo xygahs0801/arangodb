@@ -40,7 +40,7 @@ using namespace arangodb::application_features;
 using namespace arangodb::options;
 
 UnitTestsFeature::UnitTestsFeature(application_features::ApplicationServer* server, int* result)
-    : ApplicationFeature(server, "UnitTests"),
+    : ApplicationFeature(server, "UnitTests", "V8"),
       _result(result) {
   startsAfter("Nonce");
   startsAfter("Server");

@@ -55,7 +55,7 @@ BenchFeature* ARANGOBENCH;
 
 BenchFeature::BenchFeature(application_features::ApplicationServer* server,
                            int* result)
-    : ApplicationFeature(server, "Bench"),
+    : ApplicationFeature(server, "Bench", "ARANGOBENCH"),
       _async(false),
       _concurreny(1),
       _operations(1000),

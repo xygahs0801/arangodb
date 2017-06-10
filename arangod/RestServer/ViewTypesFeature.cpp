@@ -35,7 +35,7 @@ std::unordered_map<std::string, arangodb::ViewCreator>
     ViewTypesFeature::_viewCreators;
 
 ViewTypesFeature::ViewTypesFeature(ApplicationServer* server)
-    : ApplicationFeature(server, "ViewTypes") {
+    : ApplicationFeature(server, "ViewTypes", "VIEWS") {
   setOptional(false);
   requiresElevatedPrivileges(false);
   startsAfter("WorkMonitor");

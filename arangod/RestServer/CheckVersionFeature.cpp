@@ -41,7 +41,7 @@ using namespace arangodb::options;
 CheckVersionFeature::CheckVersionFeature(
     ApplicationServer* server, int* result,
     std::vector<std::string> const& nonServerFeatures)
-    : ApplicationFeature(server, "CheckVersion"),
+    : ApplicationFeature(server, "CheckVersion", "DATABASE"),
       _checkVersion(false),
       _result(result),
       _nonServerFeatures(nonServerFeatures) {

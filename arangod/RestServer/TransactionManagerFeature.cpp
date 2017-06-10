@@ -35,7 +35,7 @@ using namespace arangodb::options;
 std::unique_ptr<TransactionManager> TransactionManagerFeature::MANAGER;
 
 TransactionManagerFeature::TransactionManagerFeature(ApplicationServer* server)
-    : ApplicationFeature(server, "TransactionManager") {
+    : ApplicationFeature(server, "TransactionManager", "DATABASE") {
   setOptional(false);
   requiresElevatedPrivileges(false);
   startsAfter("EngineSelector");

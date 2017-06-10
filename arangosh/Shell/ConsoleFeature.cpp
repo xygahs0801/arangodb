@@ -46,7 +46,7 @@ static const int INTENSITY = FOREGROUND_INTENSITY | BACKGROUND_INTENSITY;
 #endif
 
 ConsoleFeature::ConsoleFeature(application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Console"),
+    : ApplicationFeature(server, "Console", "CLI"),
 #ifdef _WIN32
       _codePage(-1),
       _cygwinShell(false),

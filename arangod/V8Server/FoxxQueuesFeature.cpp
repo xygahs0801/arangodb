@@ -30,7 +30,7 @@ using namespace arangodb::options;
 
 FoxxQueuesFeature::FoxxQueuesFeature(
     application_features::ApplicationServer* server)
-    : application_features::ApplicationFeature(server, "FoxxQueues"),
+    : application_features::ApplicationFeature(server, "FoxxQueues", "FOXX"),
       _pollInterval(1.0),
       _enabled(true) {
   setOptional(true);

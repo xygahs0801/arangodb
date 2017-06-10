@@ -51,7 +51,7 @@ using namespace arangodb::rest;
 
 V8ShellFeature::V8ShellFeature(application_features::ApplicationServer* server,
                                std::string const& name)
-    : ApplicationFeature(server, "V8Shell"),
+    : ApplicationFeature(server, "V8Shell", "V8"),
       _startupDirectory("js"),
       _currentModuleDirectory(true),
       _gcInterval(50),

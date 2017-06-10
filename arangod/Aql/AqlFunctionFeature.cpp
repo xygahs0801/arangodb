@@ -44,7 +44,7 @@ AqlFunctionFeature* AqlFunctionFeature::AQLFUNCTIONS = nullptr;
 
 AqlFunctionFeature::AqlFunctionFeature(
     application_features::ApplicationServer* server)
-    : application_features::ApplicationFeature(server, "AQLFunctions"),
+    : application_features::ApplicationFeature(server, "AQLFunctions", "AQL"),
       _internalFunctionNames{
           {static_cast<int>(NODE_TYPE_OPERATOR_UNARY_PLUS), "UNARY_PLUS"},
           {static_cast<int>(NODE_TYPE_OPERATOR_UNARY_MINUS), "UNARY_MINUS"},

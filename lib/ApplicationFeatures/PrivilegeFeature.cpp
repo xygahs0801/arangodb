@@ -41,7 +41,7 @@ using namespace arangodb::options;
 
 PrivilegeFeature::PrivilegeFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Privilege"),
+    : ApplicationFeature(server, "Privilege", "SYSTEM"),
       _numericUid(0), _numericGid(0) {
   setOptional(true);
   requiresElevatedPrivileges(false);
@@ -85,7 +85,7 @@ void PrivilegeFeature::extractPrivileges() {
 
     if (TRI_errno() == TRI_ERROR_NO_ERROR && gidNumber >= 0) {
 #ifdef ARANGODB_HAVE_GETGRGID
-      group* g = getgrgid(gidNumber);
+      ::group* g = getgrgid(gidNumber);
 
       if (g == 0) {
         LOG_TOPIC(FATAL, arangodb::Logger::FIXME) << "unknown numeric gid '" << _gid << "'";
@@ -95,7 +95,7 @@ void PrivilegeFeature::extractPrivileges() {
     } else {
 #ifdef ARANGODB_HAVE_GETGRNAM
       std::string name = _gid;
-      group* g = getgrnam(name.c_str());
+      ::group* g = getgrnam(name.c_str());
 
       if (g != 0) {
         gidNumber = g->gr_gid;

@@ -30,7 +30,7 @@ size_t PageSizeFeature::PageSize = 0;
 
 PageSizeFeature::PageSizeFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "PageSize") {
+    : ApplicationFeature(server, "PageSize", "SYSTEM") {
   setOptional(false);
   requiresElevatedPrivileges(false);
   startsAfter("Logger");

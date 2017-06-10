@@ -47,7 +47,7 @@ rocksdb::BlockBasedTableOptions rocksDBTableOptionsDefaults;
 
 RocksDBOptionFeature::RocksDBOptionFeature(
     application_features::ApplicationServer* server)
-    : application_features::ApplicationFeature(server, "RocksDBOption"),
+    : application_features::ApplicationFeature(server, "RocksDBOption", "ROCKSDB"),
       _writeBufferSize(rocksDBDefaults.write_buffer_size),
       _maxWriteBufferNumber(rocksDBDefaults.max_write_buffer_number),
       _delayedWriteRate(rocksDBDefaults.delayed_write_rate),

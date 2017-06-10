@@ -28,7 +28,7 @@ using namespace arangodb;
 
 GreetingsFeature::GreetingsFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Greetings") {
+    : ApplicationFeature(server, "Greetings", "CLI") {
   setOptional(false);
   requiresElevatedPrivileges(false);
   startsAfter("Logger");

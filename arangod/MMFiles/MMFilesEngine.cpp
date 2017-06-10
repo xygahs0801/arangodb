@@ -145,7 +145,7 @@ std::string const MMFilesEngine::FeatureName("MMFilesEngine");
 
 // create the storage engine
 MMFilesEngine::MMFilesEngine(application_features::ApplicationServer* server)
-    : StorageEngine(server, EngineName, FeatureName, new MMFilesIndexFactory()),
+    : StorageEngine(server, EngineName, FeatureName, "MMFILES", new MMFilesIndexFactory()),
       _isUpgrade(false),
       _maxTick(0) {
   startsAfter("MMFilesPersistentIndex"); // yes, intentional!

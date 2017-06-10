@@ -42,7 +42,7 @@ using namespace arangodb::options;
 
 ImportFeature::ImportFeature(application_features::ApplicationServer* server,
                              int* result)
-    : ApplicationFeature(server, "Import"),
+    : ApplicationFeature(server, "Import", "ARANGOIMPORT"),
       _filename(""),
       _useBackslash(false),
       _convert(true),

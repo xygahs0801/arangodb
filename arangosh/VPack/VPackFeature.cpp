@@ -110,7 +110,7 @@ struct CustomTypeHandler : public VPackCustomTypeHandler {
 
 VPackFeature::VPackFeature(application_features::ApplicationServer* server,
                            int* result)
-    : ApplicationFeature(server, "VPack"),
+    : ApplicationFeature(server, "VPack", "ARANGOVPACK"),
       _result(result),
       _prettyPrint(true),
       _hexInput(false),

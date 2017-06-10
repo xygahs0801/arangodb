@@ -41,7 +41,7 @@ using namespace arangodb::options;
 
 BootstrapFeature::BootstrapFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Bootstrap"), _isReady(false), _bark(false) {
+    : ApplicationFeature(server, "Bootstrap", "CLUSTER"), _isReady(false), _bark(false) {
   startsAfter("Endpoint");
   startsAfter("Scheduler");
   startsAfter("Server");

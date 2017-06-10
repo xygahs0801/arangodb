@@ -39,7 +39,7 @@ using namespace arangodb::options;
 using namespace arangodb::rest;
 
 AgencyFeature::AgencyFeature(application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Agency"),
+    : ApplicationFeature(server, "Agency", "AGENCY"),
       _activated(false),
       _size(1),
       _poolSize(1),

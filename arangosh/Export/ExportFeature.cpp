@@ -46,7 +46,7 @@ using namespace boost::property_tree::xml_parser;
 
 ExportFeature::ExportFeature(application_features::ApplicationServer* server,
                              int* result)
-    : ApplicationFeature(server, "Export"),
+    : ApplicationFeature(server, "Export", "ARANGOEXPORT"),
       _collections(),
       _graphName(),
       _xgmmlLabelAttribute("label"),

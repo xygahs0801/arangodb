@@ -52,7 +52,7 @@ using namespace arangodb::rest;
 
 DumpFeature::DumpFeature(application_features::ApplicationServer* server,
                          int* result)
-    : ApplicationFeature(server, "Dump"),
+    : ApplicationFeature(server, "Dump", "ARANGODUMP"),
       _collections(),
       _chunkSize(1024 * 1024 * 2),
       _maxChunkSize(1024 * 1024 * 12),

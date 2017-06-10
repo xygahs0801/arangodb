@@ -55,7 +55,7 @@ static MMFilesPersistentIndexFeature* Instance = nullptr;
 
 MMFilesPersistentIndexFeature::MMFilesPersistentIndexFeature(
     application_features::ApplicationServer* server)
-    : application_features::ApplicationFeature(server, "MMFilesPersistentIndex"),
+    : application_features::ApplicationFeature(server, "MMFilesPersistentIndex", "MMFILES"),
       _db(nullptr), _comparator(nullptr), _path()
 {
   setOptional(true);

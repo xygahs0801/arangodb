@@ -47,7 +47,7 @@ using namespace arangodb::basics;
 using namespace arangodb::options;
 
 ClusterFeature::ClusterFeature(application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Cluster"),
+    : ApplicationFeature(server, "Cluster", "CLUSTER"),
       _unregisterOnShutdown(false),
       _enableCluster(false),
       _heartbeatThread(nullptr),

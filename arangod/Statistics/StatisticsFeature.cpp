@@ -115,7 +115,7 @@ StatisticsFeature* StatisticsFeature::STATISTICS = nullptr;
 
 StatisticsFeature::StatisticsFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Statistics"), _statistics(true) {
+    : ApplicationFeature(server, "Statistics", "STATISTICS"), _statistics(true) {
   startsAfter("Logger");
   startsAfter("Aql");
 }

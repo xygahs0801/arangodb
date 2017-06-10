@@ -107,7 +107,7 @@ std::vector<rocksdb::ColumnFamilyHandle*> RocksDBColumnFamily::_allHandles;
 
 // create the storage engine
 RocksDBEngine::RocksDBEngine(application_features::ApplicationServer* server)
-    : StorageEngine(server, EngineName, FeatureName, new RocksDBIndexFactory()),
+    : StorageEngine(server, EngineName, FeatureName, "ROCKSDB", new RocksDBIndexFactory()),
       _db(nullptr),
       _vpackCmp(new RocksDBComparator()),
       _maxTransactionSize(transaction::Options::defaultMaxTransactionSize),

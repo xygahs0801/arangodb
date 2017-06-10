@@ -45,7 +45,7 @@ constexpr bool CanNotBeDisabled = false;
 
 OptimizerRulesFeature::OptimizerRulesFeature(
     application_features::ApplicationServer* server)
-    : application_features::ApplicationFeature(server, "OptimizerRules") {
+    : application_features::ApplicationFeature(server, "OptimizerRules", "AQL") {
   setOptional(false);
   startsAfter("EngineSelector");
   startsAfter("Aql");

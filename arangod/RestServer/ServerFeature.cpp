@@ -46,7 +46,7 @@ using namespace arangodb::rest;
 
 ServerFeature::ServerFeature(application_features::ApplicationServer* server,
                              int* res)
-    : ApplicationFeature(server, "Server"),
+    : ApplicationFeature(server, "Server", "SERVER"),
       _vstMaxSize(1024 * 30),
       _result(res),
       _operationMode(OperationMode::MODE_SERVER) {

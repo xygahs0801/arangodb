@@ -30,9 +30,11 @@ using namespace arangodb::application_features;
 using namespace arangodb::options;
 
 ApplicationFeature::ApplicationFeature(ApplicationServer* server,
-                                       std::string const& name)
+                                       std::string const& name,
+                                       std::string const& group)
     : _server(server),
       _name(name),
+      _group(group),
       _state(ApplicationServer::FeatureState::UNINITIALIZED),
       _enabled(true),
       _optional(false),
@@ -111,28 +113,29 @@ void ApplicationFeature::determineAncestors() {
 
   std::vector<std::string> path;
 
-  std::function<void(std::string const&)> build = [this, &build, &path](std::string const& name) {
-    // lookup the feature first. it may not exist
-    ApplicationFeature* other = this->server()->lookupFeature(name);
+  std::function<void(std::string const&)> build =
+      [this, &build, &path](std::string const& name) {
+        // lookup the feature first. it may not exist
+        ApplicationFeature* other = this->server()->lookupFeature(name);
 
-    if (other != nullptr) {
-      path.emplace_back(name);
-      for (auto& ancestor : other->startsAfter()) {
-        if (_ancestors.emplace(ancestor).second) {
-          if (ancestor == _name) {
-            path.emplace_back(ancestor);
-            THROW_ARANGO_EXCEPTION_MESSAGE(
-              TRI_ERROR_INTERNAL,
-              "dependencies for feature '" + _name + "' are cyclic: " + arangodb::basics::StringUtils::join(path, " <= "));
+        if (other != nullptr) {
+          path.emplace_back(name);
+          for (auto& ancestor : other->startsAfter()) {
+            if (_ancestors.emplace(ancestor).second) {
+              if (ancestor == _name) {
+                path.emplace_back(ancestor);
+                THROW_ARANGO_EXCEPTION_MESSAGE(
+                    TRI_ERROR_INTERNAL,
+                    "dependencies for feature '" + _name + "' are cyclic: " +
+                        arangodb::basics::StringUtils::join(path, " <= "));
+              }
+              build(ancestor);
+            }
           }
-          build(ancestor);
+          path.pop_back();
         }
-      }
-      path.pop_back();
-    }
-  };
+      };
 
   build(_name);
   _ancestorsDetermined = true;
 }
-

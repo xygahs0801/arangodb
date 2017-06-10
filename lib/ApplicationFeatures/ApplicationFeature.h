@@ -39,13 +39,15 @@ class ApplicationFeature {
   ApplicationFeature(ApplicationFeature const&) = delete;
   ApplicationFeature& operator=(ApplicationFeature const&) = delete;
 
-  ApplicationFeature(ApplicationServer*, std::string const&);
+  ApplicationFeature(ApplicationServer*, std::string const& name,
+                     std::string const& group);
 
   virtual ~ApplicationFeature();
 
  public:
   // return the feature's name
   std::string const& name() const { return _name; }
+  std::string const& group() const { return _group; }
 
   bool isOptional() const { return _optional; }
   bool isRequired() const { return !_optional; }
@@ -152,8 +154,10 @@ class ApplicationFeature {
   // determine all direct and indirect ancestors of a feature
   std::unordered_set<std::string> ancestors() const;
 
-  void onlyEnabledWith(std::string const& other) { _onlyEnabledWith.emplace(other); }
-  
+  void onlyEnabledWith(std::string const& other) {
+    _onlyEnabledWith.emplace(other);
+  }
+
   // return the list of other features that this feature depends on
   std::unordered_set<std::string> const& onlyEnabledWith() const {
     return _onlyEnabledWith;
@@ -162,9 +166,7 @@ class ApplicationFeature {
  private:
   // set a feature's state. this method should be called by the
   // application server only
-  void state(ApplicationServer::FeatureState state) {
-    _state = state;
-  }
+  void state(ApplicationServer::FeatureState state) { _state = state; }
 
   // determine all direct and indirect ancestors of a feature
   void determineAncestors();
@@ -175,6 +177,7 @@ class ApplicationFeature {
 
   // name of feature
   std::string const _name;
+  std::string const _group;
 
   // names of other features required to be enabled if this feature
   // is enabled
@@ -185,7 +188,7 @@ class ApplicationFeature {
 
   // list of direct and indirect ancestors of the feature
   std::unordered_set<std::string> _ancestors;
-  
+
   // enable this feature only if the following other features are enabled
   std::unordered_set<std::string> _onlyEnabledWith;
 
@@ -203,7 +206,7 @@ class ApplicationFeature {
 
   bool _ancestorsDetermined;
 };
-}
-}
+}  // namespace application_features
+}  // namespace arangodb
 
 #endif

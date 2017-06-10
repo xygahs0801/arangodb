@@ -68,8 +68,8 @@ class StorageEngine : public application_features::ApplicationFeature {
   // create the storage engine
   StorageEngine(application_features::ApplicationServer* server,
                 std::string const& engineName, std::string const& featureName,
-                IndexFactory* indexFactory)
-      : application_features::ApplicationFeature(server, featureName),
+                std::string const& groupName, IndexFactory* indexFactory)
+    : application_features::ApplicationFeature(server, featureName, groupName),
         _indexFactory(indexFactory),
         _typeName(engineName) {
 

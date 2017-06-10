@@ -32,7 +32,7 @@ using namespace arangodb::basics;
 
 LockfileFeature::LockfileFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Lockfile") {
+    : ApplicationFeature(server, "Lockfile", "SYSTEM") {
   setOptional(false);
   requiresElevatedPrivileges(false);
   startsAfter("DatabasePath");

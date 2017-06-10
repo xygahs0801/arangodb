@@ -31,7 +31,7 @@ using namespace arangodb::basics;
 using namespace arangodb::options;
 
 LoggerBufferFeature::LoggerBufferFeature(application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "LoggerBuffer") {
+    : ApplicationFeature(server, "LoggerBuffer", "LOGGER") {
   setOptional(true);
   requiresElevatedPrivileges(false);
   startsAfter("Logger");

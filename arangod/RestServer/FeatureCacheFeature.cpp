@@ -32,7 +32,7 @@ using namespace arangodb::application_features;
 FeatureCacheFeature* FeatureCacheFeature::Instance = nullptr;
 
 FeatureCacheFeature::FeatureCacheFeature(application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "FeatureCache"),
+    : ApplicationFeature(server, "FeatureCache", "SYSTEM"),
       _authenticationFeature(nullptr),
       _databaseFeature(nullptr) {
   setOptional(false);

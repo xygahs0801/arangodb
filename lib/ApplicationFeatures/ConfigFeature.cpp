@@ -42,7 +42,7 @@ using namespace arangodb::options;
 
 ConfigFeature::ConfigFeature(application_features::ApplicationServer* server,
                              std::string const& progname)
-    : ApplicationFeature(server, "Config"),
+    : ApplicationFeature(server, "Config", "SYSTEM"),
       _file(""),
       _checkConfiguration(false),
       _progname(progname) {

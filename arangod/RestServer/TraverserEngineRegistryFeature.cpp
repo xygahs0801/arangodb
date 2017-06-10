@@ -31,7 +31,7 @@ traverser::TraverserEngineRegistry*
 
 TraverserEngineRegistryFeature::TraverserEngineRegistryFeature(
     ApplicationServer* server)
-    : ApplicationFeature(server, "TraverserEngineRegistry") {
+    : ApplicationFeature(server, "TraverserEngineRegistry", "TRAVERSER") {
       setOptional(false);
       requiresElevatedPrivileges(false);
       startsAfter("DatabasePath");

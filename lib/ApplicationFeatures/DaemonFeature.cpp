@@ -37,7 +37,7 @@ using namespace arangodb::basics;
 using namespace arangodb::options;
 
 DaemonFeature::DaemonFeature(application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Daemon") {
+    : ApplicationFeature(server, "Daemon", "SYSTEM") {
   setOptional(true);
   requiresElevatedPrivileges(false);
   startsAfter("Logger");

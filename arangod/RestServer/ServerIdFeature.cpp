@@ -37,7 +37,7 @@ TRI_server_id_t ServerIdFeature::SERVERID = 0;
 
 ServerIdFeature::ServerIdFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "ServerId") {
+    : ApplicationFeature(server, "ServerId", "SERVER") {
   setOptional(false);
   requiresElevatedPrivileges(false);
   startsAfter("Database");

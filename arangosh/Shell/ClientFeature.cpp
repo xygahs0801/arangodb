@@ -41,7 +41,7 @@ using namespace arangodb::options;
 
 ClientFeature::ClientFeature(application_features::ApplicationServer* server,
                              double connectionTimeout, double requestTimeout)
-    : ApplicationFeature(server, "Client"),
+    : ApplicationFeature(server, "Client", "COMM"),
       _databaseName("_system"),
       _authentication(true),
       _endpoint(Endpoint::defaultEndpoint(Endpoint::TransportType::HTTP)),

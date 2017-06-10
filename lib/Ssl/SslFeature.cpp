@@ -45,7 +45,7 @@ using namespace arangodb::options;
 const boost::asio::ssl::detail::openssl_init<true> SslFeature::sslBase{};
 
 SslFeature::SslFeature(application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Ssl") {
+    : ApplicationFeature(server, "Ssl", "COMM") {
   setOptional(true);
   requiresElevatedPrivileges(false);
   startsAfter("Logger");

@@ -35,7 +35,7 @@ using namespace arangodb::basics;
 using namespace arangodb::options;
 
 MMFilesWalRecoveryFeature::MMFilesWalRecoveryFeature(ApplicationServer* server)
-    : ApplicationFeature(server, "MMFilesWalRecovery") {
+    : ApplicationFeature(server, "MMFilesWalRecovery", "MMFILES") {
 
   setOptional(true);
   requiresElevatedPrivileges(false);

@@ -49,7 +49,7 @@ Scheduler* SchedulerFeature::SCHEDULER = nullptr;
 
 SchedulerFeature::SchedulerFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Scheduler"), _scheduler(nullptr) {
+    : ApplicationFeature(server, "Scheduler", "COMM"), _scheduler(nullptr) {
   setOptional(true);
   requiresElevatedPrivileges(false);
   startsAfter("FileDescriptors");

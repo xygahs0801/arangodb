@@ -30,7 +30,7 @@ using namespace arangodb::basics;
 
 EnvironmentFeature::EnvironmentFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Environment") {
+    : ApplicationFeature(server, "Environment", "SYSTEM") {
   setOptional(false);
   requiresElevatedPrivileges(false);
   startsAfter("Greetings");

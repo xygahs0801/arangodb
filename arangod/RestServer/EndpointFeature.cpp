@@ -36,7 +36,7 @@ using namespace arangodb::rest;
 
 EndpointFeature::EndpointFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Endpoint"),
+    : ApplicationFeature(server, "Endpoint", "COMM"),
       _reuseAddress(true),
       _backlogSize(64) {
   setOptional(true);

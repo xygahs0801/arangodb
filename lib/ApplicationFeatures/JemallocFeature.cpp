@@ -38,7 +38,7 @@ char JemallocFeature::_staticPath[PATH_MAX + 1];
 
 JemallocFeature::JemallocFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Jemalloc"), _defaultPath("./") {
+    : ApplicationFeature(server, "Jemalloc", "SYSTEM"), _defaultPath("./") {
   setOptional(false);
   requiresElevatedPrivileges(false);
 }

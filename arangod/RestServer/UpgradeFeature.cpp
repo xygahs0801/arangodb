@@ -43,7 +43,7 @@ using namespace arangodb::options;
 UpgradeFeature::UpgradeFeature(
     ApplicationServer* server, int* result,
     std::vector<std::string> const& nonServerFeatures)
-    : ApplicationFeature(server, "Upgrade"),
+    : ApplicationFeature(server, "Upgrade", "DATABASE"),
       _upgrade(false),
       _upgradeCheck(true),
       _result(result),

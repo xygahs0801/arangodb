@@ -35,7 +35,7 @@ using namespace arangodb::options;
 ActionFeature* ActionFeature::ACTION = nullptr;
 
 ActionFeature::ActionFeature(application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Action"),
+    : ApplicationFeature(server, "Action", "FOXX"),
       _allowUseDatabase(false) {
   setOptional(true);
   requiresElevatedPrivileges(false);

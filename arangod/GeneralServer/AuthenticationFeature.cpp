@@ -38,7 +38,7 @@ using namespace arangodb::options;
 
 AuthenticationFeature::AuthenticationFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Authentication"),
+    : ApplicationFeature(server, "Authentication", "COMM"),
       _authenticationUnixSockets(true),
       _authenticationSystemOnly(true),
       _jwtSecretProgramOption(""),

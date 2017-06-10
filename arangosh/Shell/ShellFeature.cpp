@@ -34,7 +34,7 @@ using namespace arangodb::options;
 
 ShellFeature::ShellFeature(
     application_features::ApplicationServer* server, int* result)
-    : ApplicationFeature(server, "Shell"),
+    : ApplicationFeature(server, "Shell", "CLI"),
       _jslint(),
       _result(result),
       _runMode(RunMode::INTERACTIVE) {

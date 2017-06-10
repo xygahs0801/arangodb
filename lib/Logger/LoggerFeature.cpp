@@ -38,7 +38,7 @@ using namespace arangodb::options;
 
 LoggerFeature::LoggerFeature(application_features::ApplicationServer* server,
                              bool threaded)
-    : ApplicationFeature(server, "Logger"),
+    : ApplicationFeature(server, "Logger", "LOGGER"),
       _threaded(threaded) {
   setOptional(false);
   requiresElevatedPrivileges(false);

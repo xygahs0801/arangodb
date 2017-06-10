@@ -89,7 +89,7 @@ GeneralServerFeature* GeneralServerFeature::GENERAL_SERVER = nullptr;
 
 GeneralServerFeature::GeneralServerFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "GeneralServer"),
+    : ApplicationFeature(server, "GeneralServer", "COMM"),
       _allowMethodOverride(false),
       _proxyCheck(true) {
   setOptional(true);

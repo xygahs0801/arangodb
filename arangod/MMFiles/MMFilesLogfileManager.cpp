@@ -88,7 +88,7 @@ static constexpr uint32_t MaxSlots() { return 1024 * 1024 * 16; }
 
 // create the logfile manager
 MMFilesLogfileManager::MMFilesLogfileManager(ApplicationServer* server)
-    : ApplicationFeature(server, "MMFilesLogfileManager"),
+    : ApplicationFeature(server, "MMFilesLogfileManager", "MMFILES"),
       _allowWrites(false),  // start in read-only mode
       _hasFoundLastTick(false),
       _inRecovery(true),

@@ -320,6 +320,8 @@ class ApplicationServer {
 
   // the install directory of this program:
   char const* _binaryPath;
+
+  std::unordered_map<std::string, std::vector<std::string>> _groups;
 };
 }
 }

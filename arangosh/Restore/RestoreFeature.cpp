@@ -53,7 +53,7 @@ using namespace arangodb::rest;
 
 RestoreFeature::RestoreFeature(application_features::ApplicationServer* server,
                                int* result)
-    : ApplicationFeature(server, "Restore"),
+    : ApplicationFeature(server, "Restore", "ARANGORESTORE"),
       _collections(),
       _chunkSize(1024 * 1024 * 8),
       _includeSystemCollections(false),

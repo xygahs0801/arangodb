@@ -39,7 +39,7 @@ using namespace arangodb::options;
 
 InitDatabaseFeature::InitDatabaseFeature(ApplicationServer* server,
     std::vector<std::string> const& nonServerFeatures)
-  : ApplicationFeature(server, "InitDatabase"),
+    : ApplicationFeature(server, "InitDatabase", "DATABASE"),
     _nonServerFeatures(nonServerFeatures) {
   setOptional(false);
   requiresElevatedPrivileges(false);

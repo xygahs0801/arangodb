@@ -32,7 +32,7 @@ using namespace arangodb::application_features;
 using namespace arangodb::options;
 
 RandomFeature::RandomFeature(application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Random"),
+    : ApplicationFeature(server, "Random", "SYSTEM"),
       _randomGenerator((uint32_t)RandomGenerator::RandomType::MERSENNE) {
   setOptional(false);
   requiresElevatedPrivileges(false);

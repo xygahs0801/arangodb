@@ -114,6 +114,8 @@ void ApplicationServer::disableFeatures(std::vector<std::string> const& names,
 void ApplicationServer::addFeature(ApplicationFeature* feature) {
   TRI_ASSERT(feature->state() == FeatureState::UNINITIALIZED);
   _features.emplace(feature->name(), feature);
+
+  _groups[feature->group()].emplace_back(feature->name());
 }
 
 // checks for the existence of a named feature. will not throw when used for
@@ -334,6 +336,17 @@ void ApplicationServer::parseOptions(int argc, char* argv[]) {
       for (auto before : feature.second->startsAfter()) {
         std::cout << "  " << feature.first << " -> " << before << ";\n";
       }
+    }
+    for (auto group : _groups) {
+      std::cout << "  subgraph cluster_" << group.first << " {\n";
+      std::cout << "    label=\"" << group.first << "\";\n";
+      std::cout << "    graph[style=dotted];\n";
+
+      for (auto component : group.second) {
+        std::cout << "    " << component << ";\n";
+      }
+
+      std::cout << "  }\n";
     }
     std::cout << "}\n";
     exit(EXIT_SUCCESS);

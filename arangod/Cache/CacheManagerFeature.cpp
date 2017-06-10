@@ -53,7 +53,7 @@ const uint64_t CacheManagerFeature::minRebalancingInterval = 500 * 1000;
 
 CacheManagerFeature::CacheManagerFeature(
     application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "CacheManager"),
+    : ApplicationFeature(server, "CacheManager", "CACHE"),
       _manager(nullptr),
       _rebalancer(nullptr),
       _cacheSize((TRI_PhysicalMemory >= (static_cast<uint64_t>(4) << 30))

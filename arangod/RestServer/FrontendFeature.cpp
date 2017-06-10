@@ -31,7 +31,7 @@ using namespace arangodb::application_features;
 using namespace arangodb::options;
 
 FrontendFeature::FrontendFeature(application_features::ApplicationServer* server)
-    : ApplicationFeature(server, "Frontend"),
+    : ApplicationFeature(server, "Frontend", "GUI"),
       _versionCheck(true) {
   startsAfter("Logger");
 }
