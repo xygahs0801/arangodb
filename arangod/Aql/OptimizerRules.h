@@ -31,6 +31,7 @@
 namespace arangodb {
 namespace aql {
 class Optimizer;
+class ExecutionNode;
 
 /// @brief adds a SORT operation for IN right-hand side operands
 void sortInValuesRule(Optimizer*, std::unique_ptr<ExecutionPlan>, OptimizerRule const*);
@@ -121,8 +122,8 @@ void distributeInClusterRule(Optimizer*, std::unique_ptr<ExecutionPlan>,
                              OptimizerRule const*);
 
 #ifdef USE_ENTERPRISE
-void distributeInClusterRuleSmartEdgeCollection(Optimizer*, std::unique_ptr<ExecutionPlan>,
-                             OptimizerRule const*);
+void distributeInClusterRuleSmartEdgeCollection(ExecutionPlan*,
+    ExecutionNode* node, ExecutionNode* root, ExecutionNode* originalParent);
 
 /// @brief remove scatter/gather and remote nodes for satellite collections
 void removeSatelliteJoinsRule(Optimizer*, std::unique_ptr<ExecutionPlan>, OptimizerRule const*);
