@@ -259,6 +259,9 @@ static void WINAPI ServiceMain(DWORD dwArgc, LPSTR* lpszArgv) {
 
 #endif
 
+#include <iostream>
+#warn BLABLA
+
 int main(int argc, char* argv[]) {
 #if _WIN32
   if (argc > 1 && TRI_EqualString("--start-service", argv[1])) {
@@ -277,5 +280,10 @@ int main(int argc, char* argv[]) {
   }
 #endif
   ArangoGlobalContext context(argc, argv, SBIN_DIRECTORY);
-  return runServer(argc, argv, context);
+  try {
+    return runServer(argc, argv, context);
+  } catch (std::exception const& e) {
+    std::cerr << "Exception in main " << e.what() << std::endl;
+  }
+}
 }
