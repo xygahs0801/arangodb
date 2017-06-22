@@ -260,7 +260,7 @@ static void WINAPI ServiceMain(DWORD dwArgc, LPSTR* lpszArgv) {
 #endif
 
 #include <iostream>
-#warn BLABLA
+#warning BLABLA
 
 int main(int argc, char* argv[]) {
 #if _WIN32
@@ -285,5 +285,4 @@ int main(int argc, char* argv[]) {
   } catch (std::exception const& e) {
     std::cerr << "Exception in main " << e.what() << std::endl;
   }
-}
 }
