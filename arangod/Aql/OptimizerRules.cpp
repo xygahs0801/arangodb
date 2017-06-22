@@ -1354,6 +1354,7 @@ void arangodb::aql::removeRedundantCalculationsRule(
 
       if (current->getType() == EN::CALCULATION) {
         try {
+          //static_cast<CalculationNode*>(current)->expression()->node()->dump(0);
           static_cast<CalculationNode*>(current)
               ->expression()
               ->stringifyIfNotTooLong(&buffer);
@@ -2376,10 +2377,14 @@ void arangodb::aql::distributeInClusterRule(Optimizer* opt,
     // inspect each return node and work upwards to SingletonNode
     plan->findEndNodes(nodes, true);
 
+    LOG_TOPIC(ERR,Logger::FIXME)  << "nodes len: " << nodes.size();
     for (ExecutionNode* root : nodes) {
+      LOG_TOPIC(ERR,Logger::FIXME)  << "root type: " << root->getTypeString();
+
       ExecutionNode* node = root;
       TRI_ASSERT(node != nullptr);
       bool isSubQuery = root != plan->root();
+      LOG_TOPIC(ERR,Logger::FIXME)  << "isSubQuery: " << isSubQuery;
       bool hasFound = false;
 
       while (node != nullptr) {
@@ -2459,6 +2464,7 @@ void arangodb::aql::distributeInClusterRule(Optimizer* opt,
           nodeType == ExecutionNode::UPDATE) {
         if (!defaultSharding) {
           // We have to use a ScatterNode.
+          LOG_TOPIC(ERR,Logger::FIXME) << "not default sharding during remove or update";
           continue;
         }
       }
@@ -2482,8 +2488,10 @@ void arangodb::aql::distributeInClusterRule(Optimizer* opt,
         }
       } else {
         // no nodes below unlinked node
+        LOG_TOPIC(ERR,Logger::FIXME) << "unlink node parent is nullptr";
         plan->unlinkNode(node, true);
         if (!isSubQuery){
+          LOG_TOPIC(ERR,Logger::FIXME) << "update plan root ot deps[0]";
           plan->root(deps[0], true);  // fix root node
         } else {
           LOG_TOPIC(ERR,Logger::FIXME) << "update subquery root without parents";
@@ -2581,7 +2589,7 @@ void arangodb::aql::distributeInClusterRule(Optimizer* opt,
         originalParent->addDependency(gatherNode);
       } else {
         // we replaced the root node, set a new root node
-        if (root == plan->root()){
+        if (!isSubQuery){
           plan->root(gatherNode, true);
         }
       }
