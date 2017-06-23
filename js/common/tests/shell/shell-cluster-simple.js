@@ -340,33 +340,44 @@ function ClusterCrudSimpleSuite () {
     for (i = 0; i < n; ++i) {
       c.save({ _key: "test" + i, value1 : (i % 10), value2 : "test" + i, value3 : 1 });
     }
+    print("docs inserted");
 
     assertEqual(n, c.count());
+    print("done");
 
     assertEqual(0, c.removeByExample({ value1 : 11 }));
     assertEqual(n, c.count());
+    print("done");
 
     assertEqual(0, c.removeByExample({ value1 : 4, value2 : "test37" }));
     assertEqual(n, c.count());
+    print("done");
 
     assertEqual(0, c.removeByExample({ foobar : "baz" }));
     assertEqual(n, c.count());
+    print("done");
 
     assertEqual(n / 10, c.removeByExample({ value1 : 1 }));
     assertEqual(n - (n / 10), c.count());
+    print("done");
 
     assertEqual(n / 10, c.removeByExample({ value1 : 2 }));
     assertEqual(n - 2 * (n / 10), c.count());
+    print("done");
 
     assertEqual(1, c.removeByExample({ _key : "test44" }));
     assertEqual(n - 2 * (n / 10) - 1, c.count());
+    print("done");
 
     assertEqual(0, c.removeByExample({ _key : "test44" }));
+    print("done");
 
     assertEqual(n - 2 * (n / 10) - 1, c.removeByExample({ value3 : 1 }));
     assertEqual(0, c.count());
+    print("done");
 
     assertEqual(0, c.removeByExample({ value3 : 1 }));
+    print("done");
   };
 
 ////////////////////////////////////////////////////////////////////////////////
