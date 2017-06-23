@@ -384,7 +384,7 @@ function ClusterCollectionSuite () {
         assertEqual(ERRORS.ERROR_CLUSTER_INSUFFICIENT_DBSERVERS.code, err.errorNum);
       }
       db._drop('bigreplication');
-    }
+    },
 
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief test creation / deleting of documents with replication set
